@@ -1,0 +1,62 @@
+{
+  "name": "@nestjs/azure-database",
+  "version": "1.0.0",
+  "description": "The Azure Table Storage module for Nest framework (node.js)",
+  "author": {
+    "name": "Wassim Chegham",
+    "email": "github@wassim.dev",
+    "url": "https://twitter.com/manekinekko"
+  },
+  "main": "./dist/index.js",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/nestjs/azure-database.git"
+  },
+  "scripts": {
+    "test": "jest --passWithNoTests",
+    "precommit": "lint-staged",
+    "prettier": "prettier src/**/*.ts --write && git status",
+    "build": "rimraf dist && npm run build:lib && npm test",
+    "build:lib": "tsc -p tsconfig.json",
+    "prepublish:npm": "npm run build",
+    "publish:npm": "npm publish --access public",
+    "prepublish:next": "npm run build",
+    "publish:next": "npm publish --access public --tag next"
+  },
+  "peerDependencies": {
+    "@nestjs/common": "^6.0.0",
+    "@nestjs/core": "^6.0.0"
+  },
+  "dependencies": {
+    "@nestjs/common": "^6.0.0",
+    "@nestjs/core": "^6.0.0"
+  },
+  "devDependencies": {
+    "@nestjs/testing": "6.1.1",
+    "@types/jest": "24.0.11",
+    "@types/node": "11.13.4",
+    "dotenv": "^8.1.0",
+    "husky": "3.0.5",
+    "jest": "24.7.1",
+    "lint-staged": "9.2.5",
+    "prettier": "1.17.0",
+    "reflect-metadata": "^0.1.13",
+    "rimraf": "^3.0.0",
+    "supertest": "4.0.2",
+    "ts-jest": "24.0.2",
+    "tslint": "5.16.0",
+    "typescript": "3.5.3"
+  },
+  "lint-staged": {
+    "*.ts": [
+      "prettier --write",
+      "git add"
+    ]
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "lint-staged"
+    }
+  }
+}
