@@ -1,14 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { AzureEntityMapper } from './azure-table.mapper';
 import azure = require('azure-storage');
 const logger = new Logger('AzureTableStorage');
-// enum LogLevel {
-//   SILENT = 0,
-//   VERBOSE = 1,
-//   DEBUG = 2,
-// }
 
-// const CURRENT_LOG_LEVEL = LogLevel.VERBOSE;
 const SHOW_ERROR_STACKTRACE = true;
 
 @Injectable()
@@ -28,10 +21,7 @@ export class AzureTableStorageService implements azure.TableService {
   }
 
   private printError(error: Error) {
-    logger.error(
-      error.message.split('\n').shift(),
-      SHOW_ERROR_STACKTRACE && error.stack,
-    );
+    logger.error(error.message.split('\n').shift(), SHOW_ERROR_STACKTRACE && error.stack);
   }
 
   // azure.TableService Implementation
@@ -51,14 +41,10 @@ export class AzureTableStorageService implements azure.TableService {
   }
   getServiceProperties(
     options: azure.common.RequestOptions,
-    callback: azure.ErrorOrResult<
-      azure.common.models.ServicePropertiesResult.ServiceProperties
-    >,
+    callback: azure.ErrorOrResult<azure.common.models.ServicePropertiesResult.ServiceProperties>,
   ): void;
   getServiceProperties(
-    callback: azure.ErrorOrResult<
-      azure.common.models.ServicePropertiesResult.ServiceProperties
-    >,
+    callback: azure.ErrorOrResult<azure.common.models.ServicePropertiesResult.ServiceProperties>,
   ): void;
   getServiceProperties(options: any, callback?: any) {
     throw new Error('Method not implemented.');
@@ -98,12 +84,7 @@ export class AzureTableStorageService implements azure.TableService {
     currentToken: azure.TableService.ListTablesContinuationToken,
     callback: azure.ErrorOrResult<azure.TableService.ListTablesResponse>,
   ): void;
-  listTablesSegmentedWithPrefix(
-    prefix: any,
-    currentToken: any,
-    options: any,
-    callback?: any,
-  ) {
+  listTablesSegmentedWithPrefix(prefix: any, currentToken: any, options: any, callback?: any) {
     throw new Error('Method not implemented.');
   }
   getTableAcl(
@@ -111,10 +92,7 @@ export class AzureTableStorageService implements azure.TableService {
     options: azure.common.RequestOptions,
     callback: azure.ErrorOrResult<azure.TableService.GetTableAclResult>,
   ): void;
-  getTableAcl(
-    table: string,
-    callback: azure.ErrorOrResult<azure.TableService.GetTableAclResult>,
-  ): void;
+  getTableAcl(table: string, callback: azure.ErrorOrResult<azure.TableService.GetTableAclResult>): void;
   getTableAcl(table: any, options: any, callback?: any) {
     throw new Error('Method not implemented.');
   }
@@ -135,18 +113,10 @@ export class AzureTableStorageService implements azure.TableService {
       signedIdentifiers: { [key: string]: azure.common.AccessPolicy };
     }>,
   ): void;
-  setTableAcl(
-    table: any,
-    signedIdentifiers: any,
-    options: any,
-    callback?: any,
-  ) {
+  setTableAcl(table: any, signedIdentifiers: any, options: any, callback?: any) {
     throw new Error('Method not implemented.');
   }
-  generateSharedAccessSignature(
-    table: string,
-    sharedAccessPolicy: azure.TableService.TableSharedAccessPolicy,
-  ): string {
+  generateSharedAccessSignature(table: string, sharedAccessPolicy: azure.TableService.TableSharedAccessPolicy): string {
     throw new Error('Method not implemented.');
   }
   generateSharedAccessSignatureWithVersion(
@@ -161,10 +131,7 @@ export class AzureTableStorageService implements azure.TableService {
     options: azure.common.RequestOptions,
     callback: azure.ErrorOrResult<azure.TableService.TableResult>,
   ): void;
-  doesTableExist(
-    table: string,
-    callback: azure.ErrorOrResult<azure.TableService.TableResult>,
-  ): void;
+  doesTableExist(table: string, callback: azure.ErrorOrResult<azure.TableService.TableResult>): void;
   doesTableExist(table: any, options: any, callback?: any) {
     throw new Error('Method not implemented.');
   }
@@ -173,16 +140,11 @@ export class AzureTableStorageService implements azure.TableService {
     options: azure.common.RequestOptions,
     callback: azure.ErrorOrResult<azure.TableService.TableResult>,
   ): void;
-  createTable(
-    table: string,
-    callback: azure.ErrorOrResult<azure.TableService.TableResult>,
-  ): void;
+  createTable(table: string, callback: azure.ErrorOrResult<azure.TableService.TableResult>): void;
   createTable(table: any, options: any, callback?: any) {
     throw new Error('Method not implemented.');
   }
-  createTableIfNotExists(
-    table: string,
-  ): Promise<azure.TableService.TableResult> {
+  createTableIfNotExists(table: string): Promise<azure.TableService.TableResult> {
     return new Promise((resolve, reject) => {
       this.tableServiceInstance.createTableIfNotExists(
         table,
@@ -209,11 +171,7 @@ export class AzureTableStorageService implements azure.TableService {
       );
     });
   }
-  deleteTable(
-    table: string,
-    options: azure.common.RequestOptions,
-    callback: azure.ErrorOrResponse,
-  ): void;
+  deleteTable(table: string, options: azure.common.RequestOptions, callback: azure.ErrorOrResponse): void;
   deleteTable(table: string, callback: azure.ErrorOrResponse): void;
   deleteTable(table: any, options: any, callback?: any) {
     throw new Error('Method not implemented.');
@@ -223,10 +181,7 @@ export class AzureTableStorageService implements azure.TableService {
     options: azure.common.RequestOptions,
     callback: azure.ErrorOrResult<boolean>,
   ): void;
-  deleteTableIfExists(
-    table: string,
-    callback: azure.ErrorOrResult<boolean>,
-  ): void;
+  deleteTableIfExists(table: string, callback: azure.ErrorOrResult<boolean>): void;
   deleteTableIfExists(table: any, options: any, callback?: any) {
     throw new Error('Method not implemented.');
   }
@@ -251,31 +206,17 @@ export class AzureTableStorageService implements azure.TableService {
       );
     });
   }
-  retrieveEntity<T>(
-    table: string,
-    partitionKey: string,
-    rowKey: string,
-    options?: any,
-  ): Promise<T> {
+  retrieveEntity<T>(table: string, partitionKey: string, rowKey: string, options?: any): Promise<T> {
     return new Promise((resolve, reject) => {
-      this.tableServiceInstance.retrieveEntity<T>(
-        table,
-        partitionKey,
-        rowKey,
-        options,
-        (error, result) => {
-          if (error) {
-            reject(error);
-          }
-          resolve(result);
-        },
-      );
+      this.tableServiceInstance.retrieveEntity<T>(table, partitionKey, rowKey, options, (error, result) => {
+        if (error) {
+          reject(error);
+        }
+        resolve(result);
+      });
     });
   }
-  insertEntity<T>(
-    table: string,
-    entityDescriptor: T,
-  ): Promise<azure.TableService.EntityMetadata> {
+  insertEntity<T>(table: string, entityDescriptor: T): Promise<azure.TableService.EntityMetadata> {
     return new Promise((resolve, reject) => {
       const returnCreatedEntityOptions = { echoContent: true };
 
@@ -305,32 +246,18 @@ export class AzureTableStorageService implements azure.TableService {
     entityDescriptor: T,
     callback: azure.ErrorOrResult<azure.TableService.EntityMetadata>,
   ): void;
-  insertOrReplaceEntity(
-    table: any,
-    entityDescriptor: any,
-    options: any,
-    callback?: any,
-  ) {
+  insertOrReplaceEntity(table: any, entityDescriptor: any, options: any, callback?: any) {
     throw new Error('Method not implemented.');
   }
-  replaceEntity<T>(
-    table: string,
-    entityDescriptor: T,
-    options?: any,
-  ): Promise<azure.TableService.EntityMetadata> {
+  replaceEntity<T>(table: string, entityDescriptor: T, options?: any): Promise<azure.TableService.EntityMetadata> {
     return new Promise((resolve, reject) => {
-      this.tableServiceInstance.replaceEntity<T>(
-        table,
-        entityDescriptor,
-        options,
-        (error, result) => {
-          if (error) {
-            this.printError(error);
-            reject(error);
-          }
-          resolve(result);
-        },
-      );
+      this.tableServiceInstance.replaceEntity<T>(table, entityDescriptor, options, (error, result) => {
+        if (error) {
+          this.printError(error);
+          reject(error);
+        }
+        resolve(result);
+      });
     });
   }
 
@@ -359,31 +286,17 @@ export class AzureTableStorageService implements azure.TableService {
     entityDescriptor: T,
     callback: azure.ErrorOrResult<azure.TableService.EntityMetadata>,
   ): void;
-  insertOrMergeEntity(
-    table: any,
-    entityDescriptor: any,
-    options: any,
-    callback?: any,
-  ) {
+  insertOrMergeEntity(table: any, entityDescriptor: any, options: any, callback?: any) {
     throw new Error('Method not implemented.');
   }
-  deleteEntity<T>(
-    table: string,
-    entityDescriptor: Partial<T>,
-    options?: any,
-  ): Promise<azure.ServiceResponse> {
+  deleteEntity<T>(table: string, entityDescriptor: Partial<T>, options?: any): Promise<azure.ServiceResponse> {
     return new Promise((resolve, reject) => {
-      this.tableServiceInstance.deleteEntity<Partial<T>>(
-        table,
-        entityDescriptor,
-        options,
-        (error, result) => {
-          if (error) {
-            reject(error);
-          }
-          resolve(result);
-        },
-      );
+      this.tableServiceInstance.deleteEntity<Partial<T>>(table, entityDescriptor, options, (error, result) => {
+        if (error) {
+          reject(error);
+        }
+        resolve(result);
+      });
     });
   }
   executeBatch(
@@ -427,10 +340,7 @@ export class AzureTableStorageService implements azure.TableService {
   setProxy(proxy: azure.common.services.storageserviceclient.Proxy): void {
     this.tableServiceInstance.setProxy(proxy);
   }
-  addListener(
-    event: string | symbol,
-    listener: (...args: any[]) => void,
-  ): this {
+  addListener(event: string | symbol, listener: (...args: any[]) => void): this {
     this.tableServiceInstance.addListener(event, listener);
     return this;
   }
@@ -442,24 +352,15 @@ export class AzureTableStorageService implements azure.TableService {
     this.tableServiceInstance.once(event, listener);
     return this;
   }
-  prependListener(
-    event: string | symbol,
-    listener: (...args: any[]) => void,
-  ): this {
+  prependListener(event: string | symbol, listener: (...args: any[]) => void): this {
     this.tableServiceInstance.prependListener(event, listener);
     return this;
   }
-  prependOnceListener(
-    event: string | symbol,
-    listener: (...args: any[]) => void,
-  ): this {
+  prependOnceListener(event: string | symbol, listener: (...args: any[]) => void): this {
     this.tableServiceInstance.prependOnceListener(event, listener);
     return this;
   }
-  removeListener(
-    event: string | symbol,
-    listener: (...args: any[]) => void,
-  ): this {
+  removeListener(event: string | symbol, listener: (...args: any[]) => void): this {
     this.tableServiceInstance.removeListener(event, listener);
     return this;
   }

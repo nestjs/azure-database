@@ -5,3 +5,6 @@ export interface AzureTableStorageOptions {
   sasKey?: string;
   connectionString?: string;
 }
+
+// tslint:disable-next-line: no-empty-interface
+export interface AzureTableStorageResponse extends azure.ServiceResponse {}

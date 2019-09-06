@@ -12,16 +12,48 @@ type AnnotationPropertyType =
   | 'Edm.Double'
   | 'Edm.DateTime';
 
+function validateType(edmType: AnnotationPropertyType, target: object /* Function */, propertyKey?: string) {
+  if (propertyKey) {
+    // tslint:disable-next-line: ban-types
+    const propertyType = Reflect.getMetadata('design:type', target, propertyKey) as Function;
+
+    let edmTypeName = '';
+    if (edmType === 'Edm.Int32' || edmType === 'Edm.Int64' || edmType === 'Edm.Double') {
+      edmTypeName = Number.name;
+    } else if (edmType === 'Edm.Boolean') {
+      edmTypeName = Boolean.name;
+    } else if (edmType === 'Edm.DateTime') {
+      edmTypeName = Date.name;
+    } else if (edmType === 'Edm.String' || edmType === 'Edm.Guid') {
+      edmTypeName = String.name;
+    } else if (edmType === 'Edm.Binary') {
+      edmTypeName = Blob.name;
+    } else {
+      throw new Error(`Type ${edmType} is not supported.`);
+    }
+
+    if (edmTypeName.toLowerCase().includes(propertyType.name.toLocaleLowerCase()) === false) {
+      throw new Error(
+        `Type of ${target.constructor.name}.${propertyKey} is ${
+          propertyType.name
+        }. Expecting ${propertyKey} to be of type ${edmType}`,
+      );
+    }
+  }
+}
+
 function annotate(value: string, type: AnnotationPropertyType) {
   return (target: object /* Function */, propertyKey?: string | undefined) => {
+    // check if the property type matches the annotated type
+    validateType(type, target, propertyKey);
+
     const isPropertyAnnotation = typeof propertyKey === 'string';
 
     // define metadata on the parent level
     target = isPropertyAnnotation ? target.constructor : target;
 
     // get previous stored entity descriptor
-    const storedEntityDescriptor =
-      Reflect.getMetadata(AZURE_TABLE_ENTITY, target) || {};
+    const storedEntityDescriptor = Reflect.getMetadata(AZURE_TABLE_ENTITY, target) || {};
     let entityDescriptor = {
       ...storedEntityDescriptor,
     };
