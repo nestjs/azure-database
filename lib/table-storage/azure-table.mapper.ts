@@ -1,0 +1,62 @@
+import { generateUuid } from '@azure/ms-rest-js';
+import { AZURE_TABLE_ENTITY } from './azure-table.decorators';
+import { Logger } from '@nestjs/common';
+import azure = require('azure-storage');
+
+const logger = new Logger(`AzureEntityMapper`);
+
+export interface PartitionRowKeyValues {
+  RowKey: {
+    _: string;
+    $: string;
+  };
+  PartitionKey: {
+    _: string;
+    $: string;
+  };
+}
+
+export class AzureEntityMapper {
+  static serializeAll<E>(
+    entriesDescriptor: azure.TableService.EntityMetadata[],
+  ): E[] {
+    return entriesDescriptor.map<E>(entry => {
+      return AzureEntityMapper.serialize<E>(entry);
+    });
+  }
+  static serialize<E>(entryDescriptor: azure.TableService.EntityMetadata) {
+    const result = {} as E;
+
+    for (const key in entryDescriptor) {
+      if (key !== '.metadata') {
+        result[key] = entryDescriptor[key]._;
+      }
+    }
+
+    return result;
+  }
+  static createEntity<D>(
+    partialDto: Partial<AzureEntityMapper>,
+    rowKeyValue = generateUuid(),
+  ) {
+    // Note: make sure we are getting the metatadat from the DTO constructor
+    // See: src/table-storage/azure-table.repository.ts
+    const entityDescriptor = Reflect.getMetadata(
+      AZURE_TABLE_ENTITY,
+      partialDto.constructor,
+    );
+
+    for (const key in partialDto) {
+      if (entityDescriptor[key]) {
+        // update the value propery
+        entityDescriptor[key]._ = partialDto[key];
+      }
+    }
+
+    // make sure we have a unique RowKey
+    (entityDescriptor as PartitionRowKeyValues).RowKey._ = rowKeyValue;
+
+    logger.debug(`Mapped Entity from DTO: RowKey=${rowKeyValue}`);
+    return entityDescriptor as (D & PartitionRowKeyValues);
+  }
+}
