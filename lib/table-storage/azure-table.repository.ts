@@ -1,6 +1,10 @@
 import { Inject, Injectable, Logger } from '@nestjs/common';
 import { AZURE_TABLE_STORAGE_NAME } from './azure-table.constant';
-import { AzureTableStorageResponse } from './azure-table.interface';
+import {
+  AzureTableContinuationToken,
+  AzureTableStorageQuery,
+  AzureTableStorageResponse,
+} from './azure-table.interface';
 import { AzureEntityMapper } from './azure-table.mapper';
 import { AzureTableStorageService } from './azure-table.service';
 import azure = require('azure-storage');
@@ -16,8 +20,8 @@ export class AzureTableStorageRepository<T> {
     @Inject(AZURE_TABLE_STORAGE_NAME) private readonly tableName,
   ) {}
   async findAll(
-    tableQuery?: azure.TableQuery,
-    currentToken?: azure.TableService.TableContinuationToken,
+    tableQuery?: AzureTableStorageQuery,
+    currentToken?: AzureTableContinuationToken,
   ): Promise<AzureTableStorageResultList<T>> {
     const result = await this.manager.queryEntities<azure.TableService.EntityMetadata>(
       this.tableName,
