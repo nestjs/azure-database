@@ -47,13 +47,6 @@ $ npm i --save @nestjs/azure-database
 1. Create or update your existing `.env` file with the following content:
 
 ```
-AZURE_STORAGE_ACCESS_KEY=
-AZURE_STORAGE_ACCOUNT=
-```
-
-If you want to use a Connection String, use this instead:
-
-```
 AZURE_STORAGE_CONNECTION_STRING=
 ```
 
@@ -67,29 +60,201 @@ if (process.env.NODE_ENV !== 'production') require('dotenv').config();
 
 > This line must be added before any other imports!
 
-4. Import `AzureTableStorageModule` in your Nest application.
+### Example
+
+#### Prepare your entity
+
+0. Create a new feature module, eg. with the nest CLI:
+
+```shell
+$ nest generate module contact
+```
+
+1. Import `AzureTableStorageModule` inside your Nest feature module:
 
 ```typescript
 import { Module } from '@nestjs/common';
 import { AzureTableStorageModule } from '@nestjs/azure-database';
+import { ContactController } from './contact.controller';
+import { ContactService } from './contact.service';
 
 @Module({
   imports: [
-    AzureTableStorageModule.withConfig({
-      storageAccount: process.env['AZURE_STORAGE_ACCOUNT'],
-      storageAccessKey: process.env['AZURE_STORAGE_ACCESS_KEY'],
-      // or if you are using a connection string
-      connectionString: process.env['AZURE_STORAGE_CONNECTION_STRING'],
+    AzureTableStorageModule.forFeature({
+      table: 'Contacts',
+      createTableIfNotExists: true,
     }),
   ],
+  providers: [ContactService],
+  controllers: [ContactController],
 })
-export class ApplicationModule {}
+export class ContactModule {}
 ```
 
-2. 
-### Example
+2. Next, create a Data Transfert Object (DTO) inside `contact.dto.ts`:
 
-TODO
+```typescript
+export class ContactDto {
+  name: string;
+  message: string;
+}
+```
+
+3. Describe the entity model using the provided decorators:
+
+`@EntityPartitionKey(value: string)`: Represents the `PartitionKey` of the entity (required).
+
+`@EntityRowKey(value: string)`: Represents the `RowKey` of the entity (required).
+
+`@EntityInt32(value?: string)`: For signed 32-bit integer values.
+
+`@EntityInt64(value?: string)`: For signed 64-bit integer values.
+
+`@EntityBinary(value?: string)`: For binary (blob) data.
+
+`@EntityBoolean(value?: string)`: For `true` or `false`values.
+
+`@EntityString(value?: string)`: For character data.
+
+`@EntityDouble(value?: string)`: For floating point numbers with 15 digit precision.
+
+`@EntityDateTime(value?: string)`: For time of day.
+
+For instance, the shape of the following entity inside `contact.entity.ts`:
+
+```typescript
+import { EntityPartitionKey, EntityRowKey, EntityString } from '@nestjs/azure-database';
+
+@EntityPartitionKey('ContactID')
+@EntityRowKey('ContactName')
+export class ContactEntity {
+  @EntityString() name: string;
+  @EntityString() message: string;
+}
+```
+
+Will be automatically converted to:
+
+```json
+{
+  "PartitionKey": { "_": "ContactID", "$": "Edm.String" },
+  "RowKey": { "_": "ContactName", "$": "Edm.String" },
+  "name": { "_": undefined, "$": "Edm.String" },
+  "message": { "_": undefined, "$": "Edm.String" }
+}
+```
+
+#### CRUD operations
+
+0. Create a service that will abstract the CRUD operations:
+
+```shell
+$ nest generate service contact
+```
+
+1. Import the `AzureTableStorageRepository` and provide it with the entity definition created earlier:
+
+```typescript
+import { Injectable } from '@nestjs/common';
+import { AzureTableStorageRepository } from '@nestjs/azure-database';
+import { ContactEntity } from './contact.entity';
+
+@Injectable()
+export class ContactService {
+  constructor(private readonly contactRepository: AzureTableStorageRepository<ContactEntity>) {}
+}
+```
+
+The `AzureTableStorageRepository` provides a couple of public APIs and Interfaces for managing various CRUD operations:
+
+##### CREATE
+
+`create(entity: T): Promise<T>`: creates a new entity.
+
+```typescript
+  @Get()
+  async getAllContacts() {
+    return await this.contactService.findAll();
+  }
+```
+
+##### READ 
+
+`find(rowKey: string, entity: Partial<T>): Promise<T>`: finds one entity using its `RowKey`.
+
+```typescript
+  @Get(':rowKey')
+  async getContact(@Param('rowKey') rowKey) {
+    try {
+      return await this.contactService.find(rowKey, new ContactEntity());
+    } catch (error) {
+      // Entity not found
+      throw new UnprocessableEntityException(error);
+    }
+  }
+```
+
+`findAll(tableQuery?: azure.TableQuery, currentToken?: azure.TableService.TableContinuationToken): Promise<AzureTableStorageResultList<T>>`: finds all entities that matche the given query (return all entities if no query provided).
+
+```typescript
+  @Get()
+  async getAllContacts() {
+    return await this.contactService.findAll();
+  }
+```
+
+##### UPDATE
+
+`update(rowKey: string, entity: Partial<T>): Promise<T>`: Updates an entity. It does a partial update.
+
+```typescript
+  @Put(':rowKey')
+  async saveContact(@Param('rowKey') rowKey, @Body() contactData: ContactDto) {
+    try {
+      const contactEntity = new ContactEntity();
+      // Disclaimer: Assign only the properties you are expecting!
+      Object.assign(contactEntity, contactData);
+
+      return await this.contactService.update(rowKey, contactEntity);
+    } catch (error) {
+      throw new UnprocessableEntityException(error);
+    }
+  }
+  @Patch(':rowKey')
+  async updateContactDetails(@Param('rowKey') rowKey, @Body() contactData: Partial<ContactDto>) {
+    try {
+      const contactEntity = new ContactEntity();
+      // Disclaimer: Assign only the properties you are expecting!
+      Object.assign(contactEntity, contactData);
+
+      return await this.contactService.update(rowKey, contactEntity);
+    } catch (error) {
+      throw new UnprocessableEntityException(error);
+    }
+  }
+```
+
+##### DELETE
+
+`delete(rowKey: string, entity: T): Promise<AzureTableStorageResponse>`: Removes an entity from the database.
+
+```typescript
+
+  @Delete(':rowKey')
+  async deleteDelete(@Param('rowKey') rowKey) {
+    try {
+      const response = await this.contactService.delete(rowKey, new ContactEntity());
+
+      if (response.statusCode === 204) {
+        return null;
+      } else {
+        throw new UnprocessableEntityException(response);
+      }
+    } catch (error) {
+      throw new UnprocessableEntityException(error);
+    }
+  }
+```
 
 ## Support
 
@@ -97,10 +262,12 @@ Nest is an MIT-licensed open source project. It can grow thanks to the sponsors 
 
 ## Stay in touch
 
-* Author - [Wassim Chegham](https://wassim.dev)
-* Website - [https://wassim.dev](https://wassim.dev/)
-* Twitter - [@manekinekko](https://twitter.com/manekinekko)
+- Author - [Wassim Chegham](https://wassim.dev)
+- Website - [https://wassim.dev](https://wassim.dev/)
+- Twitter - [@manekinekko](https://twitter.com/manekinekko)
 
 ## License
 
 Nest is [MIT licensed](LICENSE).
+
+[]: http://bit.ly/nest-edm
