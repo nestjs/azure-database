@@ -37,9 +37,10 @@ function validateType(edmType: AnnotationPropertyType, target: object /* Functio
 
     if (edmTypeName.toLowerCase().includes(propertyType.name.toLocaleLowerCase()) === false) {
       throw new Error(
-        `Type of ${target.constructor.name}.${propertyKey} is ${
-          propertyType.name
-        }. Expecting ${propertyKey} to be of type ${edmType}`,
+        `EDM type of "${
+          target.constructor.name
+        }.${propertyKey}" is ${edmType}. The equivalent of ${edmType} is ${edmTypeName}. ` +
+          `"${propertyKey}" should be of type ${edmTypeName}. Got ${propertyType.name}`,
       );
     }
   }
