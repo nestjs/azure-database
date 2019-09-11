@@ -4,6 +4,8 @@ import {
   AzureTableContinuationToken,
   AzureTableStorageQuery,
   AzureTableStorageResponse,
+  AzureTableStorageResultList,
+  Repository,
 } from './azure-table.interface';
 import { AzureEntityMapper } from './azure-table.mapper';
 import { AzureTableStorageService } from './azure-table.service';
@@ -11,10 +13,8 @@ import azure = require('azure-storage');
 
 const logger = new Logger(`AzureStorageRepository`);
 
-export interface AzureTableStorageResultList<T> extends azure.TableService.QueryEntitiesResult<T> {}
-
 @Injectable()
-export class AzureTableStorageRepository<T> {
+export class AzureTableStorageRepository<T> implements Repository<T> {
   constructor(
     private readonly manager: AzureTableStorageService,
     @Inject(AZURE_TABLE_STORAGE_NAME) private readonly tableName,
@@ -45,7 +45,7 @@ export class AzureTableStorageRepository<T> {
       entries: AzureEntityMapper.serializeAll<T>(result.entries),
     };
   }
-  async find(rowKey: string, entity: Partial<T>) {
+  async find(rowKey: string, entity: Partial<T>): Promise<T> {
     logger.debug(`Looking for Entity RowKey=${rowKey} in ${this.tableName}`);
 
     const partitionKey = AzureEntityMapper.createEntity(entity, rowKey).PartitionKey._;
@@ -59,7 +59,7 @@ export class AzureTableStorageRepository<T> {
     return AzureEntityMapper.serialize<T>(result);
   }
 
-  async create(entity: T) {
+  async create(entity: T): Promise<T> {
     logger.debug(`Inserting Entity in ${this.tableName}:`);
 
     entity = AzureEntityMapper.createEntity<T>(entity);

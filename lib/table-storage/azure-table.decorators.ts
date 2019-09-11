@@ -1,3 +1,6 @@
+import { Inject } from '@nestjs/common';
+import { getRepositoryToken } from './azure-table.providers';
+
 export const AZURE_TABLE_ENTITY = 'azure-table-storage:entity';
 
 type AnnotationPropertyType =
@@ -147,3 +150,8 @@ export function EntityDouble(value?: string) {
 export function EntityDateTime(value?: string) {
   return annotate(value, 'Edm.DateTime');
 }
+
+export const InjectRepository = (
+  // tslint:disable-next-line: ban-types
+  entity: Function,
+) => Inject(getRepositoryToken(entity));

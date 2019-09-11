@@ -2,6 +2,7 @@ import { generateUuid } from '@azure/ms-rest-js';
 import { Logger } from '@nestjs/common';
 import { AZURE_TABLE_ENTITY } from './azure-table.decorators';
 import azure = require('azure-storage');
+
 const logger = new Logger(`AzureEntityMapper`);
 
 export interface PartitionRowKeyValues {
