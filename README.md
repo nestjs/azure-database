@@ -70,41 +70,20 @@ if (process.env.NODE_ENV !== 'production') require('dotenv').config();
 $ nest generate module contact
 ```
 
-1. Import `AzureTableStorageModule` inside your Nest feature module:
+1. Create a Data Transfert Object (DTO) inside a file named `contact.dto.ts`:
 
 ```typescript
-import { Module } from '@nestjs/common';
-import { AzureTableStorageModule } from '@nestjs/azure-database';
-import { ContactController } from './contact.controller';
-import { ContactService } from './contact.service';
-
-@Module({
-  imports: [
-    AzureTableStorageModule.forFeature({
-      table: 'Contacts',
-      createTableIfNotExists: true,
-    }),
-  ],
-  providers: [ContactService],
-  controllers: [ContactController],
-})
-export class ContactModule {}
-```
-
-2. Next, create a Data Transfert Object (DTO) inside `contact.dto.ts`:
-
-```typescript
-export class ContactDto {
+export class ContactDTO {
   name: string;
   message: string;
 }
 ```
 
-3. Describe the entity model using the provided decorators:
+2. Create a file called `contact.entity.ts` and describe the entity model using the provided decorators:
 
-`@EntityPartitionKey(value: string)`: Represents the `PartitionKey` of the entity (required).
+`@EntityPartitionKey(value: string)`: Represents the `PartitionKey` of the entity (**required**).
 
-`@EntityRowKey(value: string)`: Represents the `RowKey` of the entity (required).
+`@EntityRowKey(value: string)`: Represents the `RowKey` of the entity (**required**).
 
 `@EntityInt32(value?: string)`: For signed 32-bit integer values.
 
@@ -120,14 +99,14 @@ export class ContactDto {
 
 `@EntityDateTime(value?: string)`: For time of day.
 
-For instance, the shape of the following entity inside `contact.entity.ts`:
+For instance, the shape of the following entity:
 
 ```typescript
 import { EntityPartitionKey, EntityRowKey, EntityString } from '@nestjs/azure-database';
 
 @EntityPartitionKey('ContactID')
 @EntityRowKey('ContactName')
-export class ContactEntity {
+export class Contact {
   @EntityString() name: string;
   @EntityString() message: string;
 }
@@ -144,6 +123,38 @@ Will be automatically converted to:
 }
 ```
 
+3. Import the `AzureTableStorageModule` inside your Nest feature module `contact.module.ts`:
+
+```typescript
+import { Module } from '@nestjs/common';
+import { AzureTableStorageModule } from '@nestjs/azure-database';
+import { ContactController } from './contact.controller';
+import { ContactService } from './contact.service';
+import { Contact } from './contact.entity';
+
+@Module({
+  imports: [AzureTableStorageModule.forFeature(Contact)],
+  providers: [ContactService],
+  controllers: [ContactController],
+})
+export class ContactModule {}
+```
+
+You can optionnaly pass in the following arguments:
+
+```typescript
+AzureTableStorageModule.forFeature(Contact, {
+  table: 'AnotherTableName',
+  createTableIfNotExists: true,
+})
+```
+
+- `table: string`: The name of the table. If not provided, the name of the `Contact` entity will be used as a table name
+- `createTableIfNotExists: boolean`: Whether to automatically create the table if it doesn't exists or not: 
+  - If `true` the table will be created during the startup of the app.
+  - If `false` the table will not be created. **You will have to create the table by yoursel before querying it!**
+
+
 #### CRUD operations
 
 0. Create a service that will abstract the CRUD operations:
@@ -156,12 +167,14 @@ $ nest generate service contact
 
 ```typescript
 import { Injectable } from '@nestjs/common';
-import { AzureTableStorageRepository } from '@nestjs/azure-database';
-import { ContactEntity } from './contact.entity';
+import { Repository, InjectRepository } from '@nestjs/azure-database';
+import { Contact } from './contact.entity';
 
 @Injectable()
 export class ContactService {
-  constructor(private readonly contactRepository: AzureTableStorageRepository<ContactEntity>) {}
+  constructor(
+    @InjectRepository(Contact)
+    private readonly contactRepository: Repository<Contact>) {}
 }
 ```
 
@@ -178,7 +191,7 @@ The `AzureTableStorageRepository` provides a couple of public APIs and Interface
   }
 ```
 
-##### READ 
+##### READ
 
 `find(rowKey: string, entity: Partial<T>): Promise<T>`: finds one entity using its `RowKey`.
 
@@ -209,7 +222,7 @@ The `AzureTableStorageRepository` provides a couple of public APIs and Interface
 
 ```typescript
   @Put(':rowKey')
-  async saveContact(@Param('rowKey') rowKey, @Body() contactData: ContactDto) {
+  async saveContact(@Param('rowKey') rowKey, @Body() contactData: ContactDTO) {
     try {
       const contactEntity = new ContactEntity();
       // Disclaimer: Assign only the properties you are expecting!
@@ -221,7 +234,7 @@ The `AzureTableStorageRepository` provides a couple of public APIs and Interface
     }
   }
   @Patch(':rowKey')
-  async updateContactDetails(@Param('rowKey') rowKey, @Body() contactData: Partial<ContactDto>) {
+  async updateContactDetails(@Param('rowKey') rowKey, @Body() contactData: Partial<ContactDTO>) {
     try {
       const contactEntity = new ContactEntity();
       // Disclaimer: Assign only the properties you are expecting!
