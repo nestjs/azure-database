@@ -32,7 +32,7 @@ Azure Database ([Table Storage](http://bit.ly/nest_azure-storage-table) and more
 
 1. Create a Storage account and resource ([read more](http://bit.ly/nest_new-azure-storage-account))
 1. For [Table Storage](http://bit.ly/nest_azure-storage-table), In the [Azure Portal](https://portal.azure.com), go to **Dashboard > Storage > _your-storage-account_**.
-1. Note down the "AccountName", "AccountKey" obtained at **Access keys** and "AccountSAS" from **Shared access signature** under **Settings** tab.
+1. Note down the "Storage account name" and "Connection string" obtained at **Access keys** under **Settings** tab.
 
 ## Installation
 
@@ -81,23 +81,23 @@ export class ContactDTO {
 
 2. Create a file called `contact.entity.ts` and describe the entity model using the provided decorators:
 
-`@EntityPartitionKey(value: string)`: Represents the `PartitionKey` of the entity (**required**).
+- `@EntityPartitionKey(value: string)`: Represents the `PartitionKey` of the entity (**required**).
 
-`@EntityRowKey(value: string)`: Represents the `RowKey` of the entity (**required**).
+- `@EntityRowKey(value: string)`: Represents the `RowKey` of the entity (**required**).
 
-`@EntityInt32(value?: string)`: For signed 32-bit integer values.
+- `@EntityInt32(value?: string)`: For signed 32-bit integer values.
 
-`@EntityInt64(value?: string)`: For signed 64-bit integer values.
+- `@EntityInt64(value?: string)`: For signed 64-bit integer values.
 
-`@EntityBinary(value?: string)`: For binary (blob) data.
+- `@EntityBinary(value?: string)`: For binary (blob) data.
 
-`@EntityBoolean(value?: string)`: For `true` or `false`values.
+- `@EntityBoolean(value?: string)`: For `true` or `false`values.
 
-`@EntityString(value?: string)`: For character data.
+- `@EntityString(value?: string)`: For character data.
 
-`@EntityDouble(value?: string)`: For floating point numbers with 15 digit precision.
+- `@EntityDouble(value?: string)`: For floating point numbers with 15 digit precision.
 
-`@EntityDateTime(value?: string)`: For time of day.
+- `@EntityDateTime(value?: string)`: For time of day.
 
 For instance, the shape of the following entity:
 
@@ -122,6 +122,8 @@ Will be automatically converted to:
   "message": { "_": undefined, "$": "Edm.String" }
 }
 ```
+
+> Note: The provided entity type annotations represent the [Entity Data Model][edm-types] types.
 
 3. Import the `AzureTableStorageModule` inside your Nest feature module `contact.module.ts`:
 
@@ -283,4 +285,4 @@ Nest is an MIT-licensed open source project. It can grow thanks to the sponsors 
 
 Nest is [MIT licensed](LICENSE).
 
-[]: http://bit.ly/nest-edm
+[edm-types]: http://bit.ly/nest-edm
