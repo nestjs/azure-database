@@ -165,7 +165,7 @@ AzureTableStorageModule.forFeature(Contact, {
 $ nest generate service contact
 ```
 
-1. Import the `AzureTableStorageRepository` and provide it with the entity definition created earlier:
+1. Use the `@InjectRepository(Contact)` to get an instance of the Azure `Repository` for the entity definition created earlier:
 
 ```typescript
 import { Injectable } from '@nestjs/common';
