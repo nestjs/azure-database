@@ -15,14 +15,52 @@ const logger = new Logger(`AzureStorageRepository`);
 
 @Injectable()
 export class AzureTableStorageRepository<T> implements Repository<T> {
+  // tslint:disable-next-line: variable-name
+  private _query: AzureTableStorageQuery = null;
+  private get query(): AzureTableStorageQuery {
+    // first call we return this.manager.queryInstance
+    // next calls we return this._query
+    return this._query || this.manager.queryInstance;
+  }
+  private set query(value: AzureTableStorageQuery | null) {
+    this._query = value;
+  }
   constructor(
     private readonly manager: AzureTableStorageService,
     @Inject(AZURE_TABLE_STORAGE_NAME) private readonly tableName,
   ) {}
+
+  select(...args: any[]): Repository<T> {
+    this.query = this.query.select(args);
+    return this;
+  }
+  top(top: number): Repository<T> {
+    this.query = this.query.top(top);
+    return this;
+  }
+  where(condition: string, ...args: any[]): Repository<T> {
+    this.query = this.query.where(condition, ...args);
+    return this;
+  }
+  and(condition: string, ...args: any[]): Repository<T> {
+    this.query = this.query.and(condition, ...args);
+    return this;
+  }
+  or(condition: string, ...args: any[]): Repository<T> {
+    this.query = this.query.or(condition, ...args);
+    return this;
+  }
+  toQueryObject(): Object {
+    return this.query.toQueryObject();
+  }
+
   async findAll(
     tableQuery?: AzureTableStorageQuery,
     currentToken?: AzureTableContinuationToken,
   ): Promise<AzureTableStorageResultList<T>> {
+    // get the query locally if any
+    tableQuery = this.query || tableQuery;
+
     const result = await this.manager.queryEntities<azure.TableService.EntityMetadata>(
       this.tableName,
       tableQuery,
@@ -31,13 +69,19 @@ export class AzureTableStorageRepository<T> implements Repository<T> {
     const numberOfEntities = (result.entries || []).length;
 
     if (numberOfEntities <= 0) {
-      logger.debug(`No Entities found in table ${this.tableName}`);
+      logger.debug(`No Entities found in table ${this.tableName} ${this.query && 'for query'}`);
     } else {
       if (numberOfEntities === 1) {
-        logger.debug(`Found 1 Entity in table ${this.tableName}`);
+        logger.debug(`Found 1 Entity in table ${this.tableName} ${this.query && 'for query'}`);
       } else {
-        logger.debug(`Found ${numberOfEntities} Entities in table ${this.tableName}`);
+        logger.debug(`Found ${numberOfEntities} Entities in table ${this.tableName} ${this.query && 'for query'}`);
       }
+    }
+
+    if (this.query) {
+      console.table(this.toQueryObject());
+      // reset local query
+      this.query = null;
     }
 
     return {
@@ -56,7 +100,8 @@ export class AzureTableStorageRepository<T> implements Repository<T> {
     );
 
     console.table(result, ['(index)', '$', '_']);
-    return AzureEntityMapper.serialize<T>(result);
+    const mappedEntity = AzureEntityMapper.serialize<T>(result);
+    return Object.entries(mappedEntity).length === 0 ? null : mappedEntity;
   }
 
   async create(entity: T): Promise<T> {

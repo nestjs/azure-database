@@ -10,14 +10,21 @@ export interface AzureTableStorageOptions {
 export interface AzureTableStorageResponse extends azure.ServiceResponse {}
 
 // tslint:disable-next-line: no-empty-interface
-export interface AzureTableStorageQuery extends azure.TableQuery {}
-
+// export interface AzureTableStorageQuery extends azure.TableQuery {}
+export type AzureTableStorageQuery = azure.TableQuery;
 // tslint:disable-next-line: no-empty-interface
 export interface AzureTableContinuationToken extends azure.TableService.TableContinuationToken {}
 
 export interface AzureTableStorageResultList<T> extends azure.TableService.QueryEntitiesResult<T> {}
 
 export interface Repository<T> {
+  select(...args: any[]): Repository<T> & AzureTableStorageQuery;
+  top(top: number): Repository<T> & AzureTableStorageQuery;
+  where(condition: string, ...args: any[]): Repository<T> & AzureTableStorageQuery;
+  and(condition: string, ...args: any[]): Repository<T> & AzureTableStorageQuery;
+  or(condition: string, ...args: any[]): Repository<T> & AzureTableStorageQuery;
+  toQueryObject(): Object;
+
   findAll(
     tableQuery?: AzureTableStorageQuery,
     currentToken?: AzureTableContinuationToken,
