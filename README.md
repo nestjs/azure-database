@@ -209,7 +209,7 @@ The `AzureTableStorageRepository` provides a couple of public APIs and Interface
   }
 ```
 
-`findAll(tableQuery?: azure.TableQuery, currentToken?: azure.TableService.TableContinuationToken): Promise<AzureTableStorageResultList<T>>`: finds all entities that matche the given query (return all entities if no query provided).
+`findAll(tableQuery?: azure.TableQuery, currentToken?: azure.TableService.TableContinuationToken): Promise<AzureTableStorageResultList<T>>`: finds all entities that match the given query (return all entities if no query provided).
 
 ```typescript
   @Get()
