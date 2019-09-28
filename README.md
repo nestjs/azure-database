@@ -28,6 +28,11 @@
 
 Azure Database ([Table Storage](http://bit.ly/nest_azure-storage-table) and more) module for [Nest](https://github.com/nestjs/nest) framework (node.js)
 
+## Tutorial
+
+Learn how to get started with [Azure table storage for NestJS](https://trilon.io/blog/nestjs-nosql-azure-table-storage)
+
+
 ## Before Installation
 
 1. Create a Storage account and resource ([read more](http://bit.ly/nest_new-azure-storage-account))
