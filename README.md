@@ -201,7 +201,7 @@ The `AzureTableStorageRepository` provides a couple of public APIs and Interface
   @Get(':rowKey')
   async getContact(@Param('rowKey') rowKey) {
     try {
-      return await this.contactService.find(rowKey, new ContactEntity());
+      return await this.contactService.find(rowKey, new Contact());
     } catch (error) {
       // Entity not found
       throw new UnprocessableEntityException(error);
@@ -226,7 +226,7 @@ The `AzureTableStorageRepository` provides a couple of public APIs and Interface
   @Put(':rowKey')
   async saveContact(@Param('rowKey') rowKey, @Body() contactData: ContactDTO) {
     try {
-      const contactEntity = new ContactEntity();
+      const contactEntity = new Contact();
       // Disclaimer: Assign only the properties you are expecting!
       Object.assign(contactEntity, contactData);
 
@@ -238,7 +238,7 @@ The `AzureTableStorageRepository` provides a couple of public APIs and Interface
   @Patch(':rowKey')
   async updateContactDetails(@Param('rowKey') rowKey, @Body() contactData: Partial<ContactDTO>) {
     try {
-      const contactEntity = new ContactEntity();
+      const contactEntity = new Contact();
       // Disclaimer: Assign only the properties you are expecting!
       Object.assign(contactEntity, contactData);
 
@@ -258,7 +258,7 @@ The `AzureTableStorageRepository` provides a couple of public APIs and Interface
   @Delete(':rowKey')
   async deleteDelete(@Param('rowKey') rowKey) {
     try {
-      const response = await this.contactService.delete(rowKey, new ContactEntity());
+      const response = await this.contactService.delete(rowKey, new Contact());
 
       if (response.statusCode === 204) {
         return null;
