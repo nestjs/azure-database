@@ -104,10 +104,10 @@ export class AzureTableStorageRepository<T> implements Repository<T> {
     return Object.entries(mappedEntity).length === 0 ? null : mappedEntity;
   }
 
-  async create(entity: T): Promise<T> {
+  async create(entity: T, rowKeyValue?: string): Promise<T> {
     logger.debug(`Inserting Entity in ${this.tableName}:`);
 
-    entity = AzureEntityMapper.createEntity<T>(entity);
+    entity = AzureEntityMapper.createEntity<T>(entity, rowKeyValue);
     // tslint:disable-next-line: no-console
     console.table(entity);
 
