@@ -33,7 +33,7 @@ export class AzureEntityMapper {
 
     return result;
   }
-  static createEntity<D>(partialDto: Partial<AzureEntityMapper>, rowKeyValue: string) {
+  static createEntity<D>(partialDto: Partial<AzureEntityMapper>, rowKeyValue = generateUuid()) {
     // Note: make sure we are getting the metatadat from the DTO constructor
     // See: src/table-storage/azure-table.repository.ts
     const entityDescriptor = Reflect.getMetadata(AZURE_TABLE_ENTITY, partialDto.constructor) as PartitionRowKeyValues;
@@ -43,9 +43,6 @@ export class AzureEntityMapper {
         // update the value propery
         entityDescriptor[key]._ = partialDto[key];
       }
-    }
-    if (null == rowKeyValue) {
-      rowKeyValue = generateUuid();
     }
     // make sure we have a unique RowKey
     entityDescriptor.RowKey._ = rowKeyValue;
