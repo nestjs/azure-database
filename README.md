@@ -189,13 +189,16 @@ The `AzureTableStorageRepository` provides a couple of public APIs and Interface
 
 ##### CREATE
 
-`create(entity: T): Promise<T>`: creates a new entity.
+`create(entity: T, rowKeyValue?: string): Promise<T>`: creates a new entity.
 
 ```typescript
-  @Get()
-  async getAllContacts() {
-    return await this.contactService.findAll();
-  }
+
+  @Post()
+  async create(contact: Contact, rowKeyValue: string): Promise<Contact> {
+        //if rowKeyValue is null, rowKeyValue will generate a UUID
+        return this.contactRepository.create(contact, rowKeyValue)
+    }
+
 ```
 
 ##### READ

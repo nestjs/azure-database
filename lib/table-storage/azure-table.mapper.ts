@@ -44,7 +44,6 @@ export class AzureEntityMapper {
         entityDescriptor[key]._ = partialDto[key];
       }
     }
-
     // make sure we have a unique RowKey
     entityDescriptor.RowKey._ = rowKeyValue;
 

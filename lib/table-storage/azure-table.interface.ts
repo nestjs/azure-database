@@ -32,7 +32,7 @@ export interface Repository<T> {
 
   find(rowKey: string, entity: Partial<T>): Promise<T>;
 
-  create(entity: T): Promise<T>;
+  create(entity: T, rowKeyValue?: string): Promise<T>;
 
   update(rowKey: string, entity: Partial<T>): Promise<T>;
 
