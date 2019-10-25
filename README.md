@@ -55,11 +55,11 @@ $ npm i --save @nestjs/azure-database
 AZURE_STORAGE_CONNECTION_STRING=
 ```
 
-2. **IMPORTANT: Make sure to add your `.env` file to your .gitignore! The `.env` file MUST NOT be versionned on Git.**
+2. **IMPORTANT: Make sure to add your `.env` file to your .gitignore! The `.env` file MUST NOT be versioned on Git.**
 
 3. Make sure to include the following call to your main file:
 
-```
+```typescript
 if (process.env.NODE_ENV !== 'production') require('dotenv').config();
 ```
 
@@ -75,7 +75,7 @@ if (process.env.NODE_ENV !== 'production') require('dotenv').config();
 $ nest generate module contact
 ```
 
-1. Create a Data Transfert Object (DTO) inside a file named `contact.dto.ts`:
+1. Create a Data Transfer Object (DTO) inside a file named `contact.dto.ts`:
 
 ```typescript
 export class ContactDTO {
@@ -96,7 +96,7 @@ export class ContactDTO {
 
 - `@EntityBinary(value?: string)`: For binary (blob) data.
 
-- `@EntityBoolean(value?: string)`: For `true` or `false`values.
+- `@EntityBoolean(value?: string)`: For `true` or `false` values.
 
 - `@EntityString(value?: string)`: For character data.
 
@@ -147,7 +147,7 @@ import { Contact } from './contact.entity';
 export class ContactModule {}
 ```
 
-You can optionnaly pass in the following arguments:
+You can optionally pass in the following arguments:
 
 ```typescript
 AzureTableStorageModule.forFeature(Contact, {
@@ -159,7 +159,7 @@ AzureTableStorageModule.forFeature(Contact, {
 - `table: string`: The name of the table. If not provided, the name of the `Contact` entity will be used as a table name
 - `createTableIfNotExists: boolean`: Whether to automatically create the table if it doesn't exists or not: 
   - If `true` the table will be created during the startup of the app.
-  - If `false` the table will not be created. **You will have to create the table by yoursel before querying it!**
+  - If `false` the table will not be created. **You will have to create the table by yourself before querying it!**
 
 
 #### CRUD operations
