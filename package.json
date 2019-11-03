@@ -35,7 +35,7 @@
     "azure-storage": "^2.10.3"
   },
   "devDependencies": {
-    "@nestjs/testing": "6.7.1",
+    "@nestjs/testing": "6.9.0",
     "@types/jest": "24.0.18",
     "@types/node": "11.13.21",
     "dotenv": "^8.1.0",
