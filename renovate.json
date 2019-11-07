@@ -2,5 +2,10 @@
   "extends": [
     "config:base"
   ],
+  "semanticCommits": true,
+  "packageRules": [{
+    "depTypeList": ["devDependencies"],
+    "automerge": true
+  }],
   "rangeStrategy": "replace"
 }
