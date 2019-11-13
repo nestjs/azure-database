@@ -29,6 +29,7 @@
     "@nestjs/core": "^6.0.0"
   },
   "dependencies": {
+    "@azure/cosmos": "^3.4.2",
     "@azure/ms-rest-js": "^2.0.4",
     "@nestjs/common": "^6.0.0",
     "@nestjs/core": "^6.0.0",
