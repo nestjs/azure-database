@@ -26,18 +26,25 @@
 
 ## Description
 
-Azure Database ([Table Storage](http://bit.ly/nest_azure-storage-table) and more) module for [Nest](https://github.com/nestjs/nest) framework (node.js)
+Azure Database ([Table Storage](http://bit.ly/nest_azure-storage-table), [Cosmos DB](https://azure.microsoft.com/en-us/services/cosmos-db/) and more) module for [Nest](https://github.com/nestjs/nest) framework (node.js)
 
 ## Tutorial
 
 Learn how to get started with [Azure table storage for NestJS](https://trilon.io/blog/nestjs-nosql-azure-table-storage)
 
-
 ## Before Installation
+
+For Table Storage
 
 1. Create a Storage account and resource ([read more](http://bit.ly/nest_new-azure-storage-account))
 1. For [Table Storage](http://bit.ly/nest_azure-storage-table), In the [Azure Portal](https://portal.azure.com), go to **Dashboard > Storage > _your-storage-account_**.
 1. Note down the "Storage account name" and "Connection string" obtained at **Access keys** under **Settings** tab.
+
+For Cosmos DB
+
+1. Create a Cosmos DB account and resource ([read more](https://azure.microsoft.com/en-us/services/cosmos-db/)
+1. For [Cosmos DB](http://bit.ly/nest_azure-storage-table), In the [Azure Portal](https://portal.azure.com), go to **Dashboard > Azure Cosmos DB > _your-cosmos-db-account_**.
+1. Note down the "URI" and "Primary Key" obtained at **Keys** under **Settings** tab.
 
 ## Installation
 
@@ -153,14 +160,13 @@ You can optionally pass in the following arguments:
 AzureTableStorageModule.forFeature(Contact, {
   table: 'AnotherTableName',
   createTableIfNotExists: true,
-})
+});
 ```
 
 - `table: string`: The name of the table. If not provided, the name of the `Contact` entity will be used as a table name
-- `createTableIfNotExists: boolean`: Whether to automatically create the table if it doesn't exists or not: 
+- `createTableIfNotExists: boolean`: Whether to automatically create the table if it doesn't exists or not:
   - If `true` the table will be created during the startup of the app.
   - If `false` the table will not be created. **You will have to create the table by yourself before querying it!**
-
 
 #### CRUD operations
 
@@ -181,7 +187,8 @@ import { Contact } from './contact.entity';
 export class ContactService {
   constructor(
     @InjectRepository(Contact)
-    private readonly contactRepository: Repository<Contact>) {}
+    private readonly contactRepository: Repository<Contact>,
+  ) {}
 }
 ```
 
@@ -273,6 +280,213 @@ The `AzureTableStorageRepository` provides a couple of public APIs and Interface
       } else {
         throw new UnprocessableEntityException(response);
       }
+    } catch (error) {
+      throw new UnprocessableEntityException(error);
+    }
+  }
+```
+
+### For Azure Cosmos DB support
+
+1. Create or update your existing `.env` file with the following content:
+
+```
+AZURE_COSMOS_DB_NAME=
+AZURE_COSMOS_DB_ENDPOINT=
+AZURE_COSMOS_DB_KEY=
+```
+
+2. **IMPORTANT: Make sure to add your `.env` file to your .gitignore! The `.env` file MUST NOT be versioned on Git.**
+
+3. Make sure to include the following call to your main file:
+
+```typescript
+if (process.env.NODE_ENV !== 'production') require('dotenv').config();
+```
+
+> This line must be added before any other imports!
+
+### Example
+
+#### Prepare your entity
+
+0. Create a new feature module, eg. with the nest CLI:
+
+```shell
+$ nest generate module event
+```
+
+1. Create a Data Transfer Object (DTO) inside a file named `event.dto.ts`:
+
+```typescript
+export class EventDTO {
+  name: string;
+  type: string;
+  date: Date;
+  location: Point;
+}
+```
+
+2. Create a file called `event.entity.ts` and describe the entity model using the provided decorators:
+
+- `@CosmosPartitionKey(value: string)`: Represents the `PartitionKey` of the entity (**required**).
+
+- `@CosmosDateTime(value?: string)`: For time of day.
+
+For instance, the shape of the following entity:
+
+```typescript
+import { CosmosPartitionKey, CosmosDateTime, Point } from '@nestjs/azure-database';
+
+@CosmosPartitionKey('type')
+export class Event {
+  id?: string;
+  type: string;
+  @CosmosDateTime() createdAt: Date;
+  location: Point;
+}
+```
+
+Will be automatically converted to:
+
+```json
+{
+  "type": "Meetup",
+  "createdAt": "2019-11-15T17:05:25.427Z",
+  "position": {
+    "type": "Point",
+    "coordinates": [2.3522, 48.8566]
+  }
+}
+```
+
+3. Import the `AzureCosmosDbModule` inside your Nest feature module `event.module.ts`:
+
+```typescript
+import { Module } from '@nestjs/common';
+import { AzureCosmosDbModule } from '@nestjs/azure-database';
+import { EventController } from './event.controller';
+import { EventService } from './event.service';
+import { Event } from './event.entity';
+
+@Module({
+  imports: [
+    AzureCosmosDbModule.forRoot({
+      dbName: process.env.AZURE_COSMOS_DB_NAME,
+      endpoint: process.env.AZURE_COSMOS_DB_ENDPOINT,
+      key: process.envAZURE_COSMOS_DB_KEY,
+    }),
+    AzureCosmosDbModule.forFeature([{ dto: Event }], process.env.AZURE_COSMOS_DB_NAME),
+  ],
+  providers: [EventService],
+  controllers: [EventController],
+})
+export class EventModule {}
+```
+
+#### CRUD operations
+
+0. Create a service that will abstract the CRUD operations:
+
+```shell
+$ nest generate service event
+```
+
+1. Use the `@InjectModel(Event.name)` to get an instance of the Azure Cosmos DB [Container](https://docs.microsoft.com/en-us/javascript/api/@azure/cosmos/container) for the entity definition created earlier:
+
+```typescript
+import { Injectable } from '@nestjs/common';
+import { InjectModel } from '@nestjs/azure-database';
+import { Event } from './event.entity';
+
+@Injectable()
+export class EventService {
+  constructor(
+    @InjectModel(Event.name)
+    private readonly eventContainer,
+  ) {}
+}
+```
+
+The Azure Cosmos DB `Container` provides a couple of public APIs and Interfaces for managing various CRUD operations:
+
+##### CREATE
+
+`create(entity: T): Promise<T>`: creates a new entity.
+
+```typescript
+
+  @Post()
+  async create(event: Event): Promise<Event> {
+      return this.eventContainer.items.create(event)
+  }
+
+```
+
+##### READ
+
+`query<T>(query: string | SqlQuerySpec, options?: FeedOptions): QueryIterator<T> `: run a SQL Query to find a document.
+
+```typescript
+  @Get(':id')
+  async getContact(@Param('id') id) {
+    try {
+       const querySpec = {
+           query: "SELECT * FROM root r WHERE r.id=@id",
+           parameters: [
+             {
+               name: "@id",
+               value: id
+             }
+           ]
+         };
+        const { resources } = await this.eventContainer.items.query<Event>(querySpec).fetchAll()
+         return resources
+    } catch (error) {
+      // Entity not found
+      throw new UnprocessableEntityException(error);
+    }
+  }
+```
+
+##### UPDATE
+
+`read<T>(options?: RequestOptions): Promise<ItemResponse<T>>  `: Get a document.
+`replace<T>(body: T, options?: RequestOptions): Promise<ItemResponse<T>>  `: Updates a document.
+
+```typescript
+  @Put(':id')
+  async saveEvent(@Param('id') id, @Body() eventData: EventDTO) {
+    try {
+      const { resource: item } = await this.eventContainer.item<Event>(id, 'type').read()
+
+      // Disclaimer: Assign only the properties you are expecting!
+      Object.assign(item, eventData);
+
+      const { resource: replaced } = await this.eventContainer
+       .item(id, 'type')
+       .replace<Event>(item)
+      return replaced
+    } catch (error) {
+      throw new UnprocessableEntityException(error);
+    }
+  }
+```
+
+##### DELETE
+
+`delete<T>(options?: RequestOptions): Promise<ItemResponse<T>> `: Removes an entity from the database.
+
+```typescript
+
+  @Delete(':id')
+  async deleteEvent(@Param('id') id) {
+    try {
+      const { resource: deleted } = await this.eventContainer
+       .item(id, 'type')
+       .delete<Event>()
+        
+      return deleted;
     } catch (error) {
       throw new UnprocessableEntityException(error);
     }
