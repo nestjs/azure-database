@@ -1,13 +1,36 @@
 import { Inject } from '@nestjs/common';
-// import { getRepositoryToken } from './cosmos-db.providers';
 import { getConnectionToken, getModelToken } from './cosmos-db.utils';
 
 export const AZURE_COMSOS_DB_ENTITY = 'azure-cosmos-db:entity';
 
-type AnnotationPropertyType = 'PartitionKey';
+type AnnotationPropertyType = 'PartitionKey' | 'DateTime';
+
+function validateType(annotationType: AnnotationPropertyType, target: object /* Function */, propertyKey?: string) {
+  if (propertyKey) {
+    // tslint:disable-next-line: ban-types
+    const propertyType = Reflect.getMetadata('design:type', target, propertyKey) as Function;
+
+    let propertyTypeName = '';
+    if (annotationType === 'DateTime') {
+      propertyTypeName = Date.name;
+    } else {
+      throw new Error(`Type ${annotationType} is not supported.`);
+    }
+
+    if (propertyTypeName.toLowerCase().includes(propertyType.name.toLocaleLowerCase()) === false) {
+      throw new Error(
+        `EDM type of "${target.constructor.name}.${propertyKey}" is ${annotationType}. The equivalent of ${annotationType} is ${propertyTypeName}. ` +
+          `"${propertyKey}" should be of type ${propertyTypeName}. Got ${propertyType.name}`,
+      );
+    }
+  }
+}
 
 function annotate(value: string, type: AnnotationPropertyType) {
   return (target: object /* Function */, propertyKey?: string | undefined) => {
+    // check if the property type matches the annotated type
+    validateType(type, target, propertyKey);
+
     const isPropertyAnnotation = typeof propertyKey === 'string';
 
     // define metadata on the parent level
@@ -30,7 +53,7 @@ function annotate(value: string, type: AnnotationPropertyType) {
       */
 
       entityDescriptor = {
-        [propertyKey]: { _: value, $: type },
+        [propertyKey]: type,
         ...entityDescriptor,
       };
     } else {
@@ -68,46 +91,9 @@ export function CosmosPartitionKey(value: string) {
   return annotate(value, 'PartitionKey');
 }
 
-// export function EntityRowKey(value: string) {
-//   return annotate(value, 'RowKey');
-// }
-
-// export function EntityInt32(value?: string) {
-//   return annotate(value, 'Edm.Int32');
-// }
-
-// export function EntityInt64(value?: string) {
-//   return annotate(value, 'Edm.Int64');
-// }
-
-// export function EntityBinary(value?: string) {
-//   return annotate(value, 'Edm.Binary');
-// }
-
-// export function EntityBoolean(value?: string) {
-//   return annotate(value, 'Edm.Boolean');
-// }
-
-// export function EntityString(value?: string) {
-//   return annotate(value, 'Edm.String');
-// }
-
-// export function EntityGuid(value?: string) {
-//   return annotate(value, 'Edm.Guid');
-// }
-
-// export function EntityDouble(value?: string) {
-//   return annotate(value, 'Edm.Double');
-// }
-
-// export function EntityDateTime(value?: string) {
-//   return annotate(value, 'Edm.DateTime');
-// }
-
-// export const InjectRepository = (
-//   // tslint:disable-next-line: ban-types
-//   entity: Function,
-// ) => Inject(getRepositoryToken(entity));
+export function CosmosDateTime(value?: string) {
+  return annotate(value, 'DateTime');
+}
 
 export const InjectModel = (model: string) => Inject(getModelToken(model));
 
