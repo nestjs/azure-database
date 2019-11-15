@@ -1,5 +1,4 @@
-import { CosmosClientOptions, SqlQuerySpec, DatabaseResponse, ItemResponse } from '@azure/cosmos';
-
+import { CosmosClientOptions } from '@azure/cosmos';
 import { Type } from '@nestjs/common';
 import { ModuleMetadata } from '@nestjs/common/interfaces';
 
@@ -21,4 +20,27 @@ export interface AzureCosmosDbModuleAsyncOptions extends Pick<ModuleMetadata, 'i
   useClass?: Type<AzureCosmosDbOptionsFactory>;
   useFactory?: (...args: any[]) => Promise<AzureCosmosDbOptions> | AzureCosmosDbOptions;
   inject?: any[];
+}
+
+type GeoJsonTypes = 'Point' | 'Polygon' | 'LineStrings';
+
+export type Position = number[]; // [number, number] | [number, number, number]; Longitude, Latitude
+
+interface GeoJsonObject {
+  type: GeoJsonTypes;
+}
+
+export class Point implements GeoJsonObject {
+  type: 'Point' = 'Point';
+  coordinates: Position;
+}
+
+export class LineString implements GeoJsonObject {
+  type: 'LineStrings' = 'LineStrings';
+  coordinates: Position[];
+}
+
+export class Polygon implements GeoJsonObject {
+  type: 'Polygon' = 'Polygon';
+  coordinates: Position[][];
 }
