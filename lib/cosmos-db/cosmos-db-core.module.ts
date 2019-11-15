@@ -1,18 +1,18 @@
+import { CosmosClient } from '@azure/cosmos';
 import { DynamicModule, Global, Inject, Module, Provider, Type } from '@nestjs/common';
 import { ModuleRef } from '@nestjs/core';
 import { defer } from 'rxjs';
-import { CosmosClient } from '@azure/cosmos';
-import { getConnectionToken, handleRetry, getDbToken } from './cosmos-db.utils';
+import {
+  AZURE_COSMOS_DB_CONNECTION_NAME,
+  AZURE_COSMOS_DB_MODULE_OPTIONS,
+  AZURE_COSMOS_DB_NAME,
+} from './cosmos-db.constants';
 import {
   AzureCosmosDbModuleAsyncOptions,
   AzureCosmosDbOptions,
   AzureCosmosDbOptionsFactory,
 } from './cosmos-db.interface';
-import {
-  AZURE_COSMOS_DB_MODULE_OPTIONS,
-  AZURE_COSMOS_DB_CONNECTION_NAME,
-  AZURE_COSMOS_DB_NAME,
-} from './cosmos-db.constants';
+import { getConnectionToken, getDbToken, handleRetry } from './cosmos-db.utils';
 
 @Global()
 @Module({})

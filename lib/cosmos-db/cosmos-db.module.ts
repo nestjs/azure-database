@@ -1,6 +1,6 @@
 import { DynamicModule, Module } from '@nestjs/common';
-import { AzureCosmosDbModuleAsyncOptions, AzureCosmosDbOptions } from './cosmos-db.interface';
 import { AzureCosmosDbCoreModule } from './cosmos-db-core.module';
+import { AzureCosmosDbModuleAsyncOptions, AzureCosmosDbOptions } from './cosmos-db.interface';
 import { createAzureCosmosDbProviders } from './cosmos-db.providers';
 
 @Module({})
