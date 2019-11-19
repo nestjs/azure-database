@@ -2,11 +2,7 @@ import { CosmosClient } from '@azure/cosmos';
 import { DynamicModule, Global, Inject, Module, Provider, Type } from '@nestjs/common';
 import { ModuleRef } from '@nestjs/core';
 import { defer } from 'rxjs';
-import {
-  AZURE_COSMOS_DB_CONNECTION_NAME,
-  AZURE_COSMOS_DB_MODULE_OPTIONS,
-  AZURE_COSMOS_DB_NAME,
-} from './cosmos-db.constants';
+import { COSMOS_DB_CONNECTION_NAME, COSMOS_DB_MODULE_OPTIONS, COSMOS_DB_NAME } from './cosmos-db.constants';
 import {
   AzureCosmosDbModuleAsyncOptions,
   AzureCosmosDbOptions,
@@ -18,7 +14,7 @@ import { getConnectionToken, getDbToken, handleRetry } from './cosmos-db.utils';
 @Module({})
 export class AzureCosmosDbCoreModule {
   constructor(
-    @Inject(AZURE_COSMOS_DB_CONNECTION_NAME) private readonly connectionName: string,
+    @Inject(COSMOS_DB_CONNECTION_NAME) private readonly connectionName: string,
     private readonly moduleRef: ModuleRef,
   ) {}
 
@@ -29,12 +25,12 @@ export class AzureCosmosDbCoreModule {
     const cosmosDbName = getDbToken(dbName);
 
     const cosmosConnectionNameProvider = {
-      provide: AZURE_COSMOS_DB_CONNECTION_NAME,
+      provide: COSMOS_DB_CONNECTION_NAME,
       useValue: cosmosConnectionName,
     };
 
     const cosmosDbNameProvider = {
-      provide: AZURE_COSMOS_DB_NAME,
+      provide: COSMOS_DB_NAME,
       useValue: cosmosDbName,
     };
 
@@ -63,12 +59,12 @@ export class AzureCosmosDbCoreModule {
     const cosmosDbName = getDbToken(options.dbName);
 
     const cosmosConnectionNameProvider = {
-      provide: AZURE_COSMOS_DB_CONNECTION_NAME,
+      provide: COSMOS_DB_CONNECTION_NAME,
       useValue: cosmosConnectionName,
     };
 
     const cosmosDbNameProvider = {
-      provide: AZURE_COSMOS_DB_NAME,
+      provide: COSMOS_DB_NAME,
       useValue: cosmosDbName,
     };
 
@@ -86,7 +82,7 @@ export class AzureCosmosDbCoreModule {
           .pipe(handleRetry(retryAttempts, retryDelay))
           .toPromise();
       },
-      inject: [AZURE_COSMOS_DB_MODULE_OPTIONS],
+      inject: [COSMOS_DB_MODULE_OPTIONS],
     };
     const asyncProviders = this.createAsyncProviders(options);
     return {
@@ -120,7 +116,7 @@ export class AzureCosmosDbCoreModule {
   private static createAsyncOptionsProvider(options: AzureCosmosDbModuleAsyncOptions): Provider {
     if (options.useFactory) {
       return {
-        provide: AZURE_COSMOS_DB_MODULE_OPTIONS,
+        provide: COSMOS_DB_MODULE_OPTIONS,
         useFactory: options.useFactory,
         inject: options.inject || [],
       };
@@ -128,7 +124,7 @@ export class AzureCosmosDbCoreModule {
     // `as Type<AzureCosmosDbOptionsFactory>` is a workaround for microsoft/TypeScript#31603
     const inject = [(options.useClass || options.useExisting) as Type<AzureCosmosDbOptionsFactory>];
     return {
-      provide: AZURE_COSMOS_DB_MODULE_OPTIONS,
+      provide: COSMOS_DB_MODULE_OPTIONS,
       useFactory: async (optionsFactory: AzureCosmosDbOptionsFactory) =>
         await optionsFactory.createAzureCosmosDbOptions(),
       inject,

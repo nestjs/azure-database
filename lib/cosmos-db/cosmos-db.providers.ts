@@ -1,5 +1,5 @@
 import { ContainerDefinition, CosmosClient, IndexKind, DataType } from '@azure/cosmos';
-import { AZURE_COMSOS_DB_ENTITY } from './cosmos-db.decorators';
+import { COMSOS_DB_ENTITY } from './cosmos-db.decorators';
 import { getConnectionToken, getDbToken, getModelToken, pluralize } from './cosmos-db.utils';
 
 export interface PartitionKeyValues {
@@ -20,7 +20,7 @@ export function createAzureCosmosDbProviders(
       const database = dbResponse.database;
       //  debug('Setting up the database...done!')
       //  debug('Setting up the container...')
-      const entityDescriptor = Reflect.getMetadata(AZURE_COMSOS_DB_ENTITY, model.dto) as PartitionKeyValues;
+      const entityDescriptor = Reflect.getMetadata(COMSOS_DB_ENTITY, model.dto) as PartitionKeyValues;
       const partitionKey = entityDescriptor ? entityDescriptor.PartitionKey : null;
       const containerName = model.collection ?? pluralize(model.dto.name);
       const containerOptions: ContainerDefinition = {
