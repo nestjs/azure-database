@@ -392,7 +392,7 @@ export class EventModule {}
 $ nest generate service event
 ```
 
-1. Use the `@InjectModel(Event.name)` to get an instance of the Azure Cosmos DB [Container](https://docs.microsoft.com/en-us/javascript/api/@azure/cosmos/container) for the entity definition created earlier:
+1. Use the `@InjectModel(Event)` to get an instance of the Azure Cosmos DB [Container](https://docs.microsoft.com/en-us/javascript/api/@azure/cosmos/container) for the entity definition created earlier:
 
 ```typescript
 import { Injectable } from '@nestjs/common';
@@ -402,7 +402,7 @@ import { Event } from './event.entity';
 @Injectable()
 export class EventService {
   constructor(
-    @InjectModel(Event.name)
+    @InjectModel(Event)
     private readonly eventContainer,
   ) {}
 }

@@ -95,6 +95,6 @@ export function CosmosDateTime(value?: string) {
   return annotate(value, 'DateTime');
 }
 
-export const InjectModel = (model: string) => Inject(getModelToken(model));
+export const InjectModel = (model: any) => Inject(getModelToken(model.name));
 
 export const InjectConnection = (name?: string) => Inject(getConnectionToken(name));
