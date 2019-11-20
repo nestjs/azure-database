@@ -374,9 +374,9 @@ import { Event } from './event.entity';
     AzureCosmosDbModule.forRoot({
       dbName: process.env.AZURE_COSMOS_DB_NAME,
       endpoint: process.env.AZURE_COSMOS_DB_ENDPOINT,
-      key: process.envAZURE_COSMOS_DB_KEY,
+      key: process.env.AZURE_COSMOS_DB_KEY,
     }),
-    AzureCosmosDbModule.forFeature([{ dto: Event }], process.env.AZURE_COSMOS_DB_NAME),
+    AzureCosmosDbModule.forFeature([{ dto: Event }]),
   ],
   providers: [EventService],
   controllers: [EventController],

@@ -7,10 +7,6 @@ export function getModelToken(model: string) {
   return `${model}AzureCosmosDbModel`;
 }
 
-export function getDbToken(dbName: string) {
-  return `${dbName}AzureCosmosDbName`;
-}
-
 export function getConnectionToken(name?: string) {
   return name && name !== DEFAULT_DB_CONNECTION ? `${name}AzureCosmosDbConnection` : DEFAULT_DB_CONNECTION;
 }

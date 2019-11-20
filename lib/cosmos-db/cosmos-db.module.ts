@@ -19,12 +19,8 @@ export class AzureCosmosDbModule {
     };
   }
 
-  static forFeature(
-    models: { dto: any; collection?: string }[] = [],
-    databaseName?: string,
-    connectionName?: string,
-  ): DynamicModule {
-    const providers = createAzureCosmosDbProviders(connectionName, databaseName, models);
+  static forFeature(models: { dto: any; collection?: string }[] = [], connectionName?: string): DynamicModule {
+    const providers = createAzureCosmosDbProviders(connectionName, models);
     return {
       module: AzureCosmosDbModule,
       providers,

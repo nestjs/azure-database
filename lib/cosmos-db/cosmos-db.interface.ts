@@ -14,7 +14,6 @@ export interface AzureCosmosDbOptionsFactory {
 }
 
 export interface AzureCosmosDbModuleAsyncOptions extends Pick<ModuleMetadata, 'imports'> {
-  dbName: string;
   connectionName?: string;
   useExisting?: Type<AzureCosmosDbOptionsFactory>;
   useClass?: Type<AzureCosmosDbOptionsFactory>;
