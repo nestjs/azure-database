@@ -42,7 +42,7 @@ For Table Storage
 
 For Cosmos DB
 
-1. Create a Cosmos DB account and resource ([read more](https://azure.microsoft.com/en-us/services/cosmos-db/)
+1. Create a Cosmos DB account and resource ([read more](https://azure.microsoft.com/en-us/services/cosmos-db/))
 1. For [Cosmos DB](http://bit.ly/nest_azure-storage-table), In the [Azure Portal](https://portal.azure.com), go to **Dashboard > Azure Cosmos DB > _your-cosmos-db-account_**.
 1. Note down the "URI" and "Primary Key" obtained at **Keys** under **Settings** tab.
 
