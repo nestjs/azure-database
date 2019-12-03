@@ -187,8 +187,7 @@ import { Contact } from './contact.entity';
 export class ContactService {
   constructor(
     @InjectRepository(Contact)
-    private readonly contactRepository: Repository<Contact>,
-  ) {}
+    private readonly contactRepository: Repository<Contact>) {}
 }
 ```
 
@@ -331,7 +330,7 @@ export class EventDTO {
 
 - `@CosmosPartitionKey(value: string)`: Represents the `PartitionKey` of the entity (**required**).
 
-- `@CosmosDateTime(value?: string)`: For time of day.
+- `@CosmosDateTime(value?: string)`: For DateTime values.
 
 For instance, the shape of the following entity:
 
