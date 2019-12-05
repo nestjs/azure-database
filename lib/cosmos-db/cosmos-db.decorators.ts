@@ -3,7 +3,7 @@ import { getConnectionToken, getModelToken } from './cosmos-db.utils';
 
 export const COMSOS_DB_ENTITY = 'cosmos-db:entity';
 
-type AnnotationPropertyType = 'PartitionKey' | 'DateTime';
+type AnnotationPropertyType = 'PartitionKey' | 'DateTime' | 'UniqueKey';
 
 function validateType(annotationType: AnnotationPropertyType, target: object /* Function */, propertyKey?: string) {
   if (propertyKey) {
@@ -93,6 +93,10 @@ export function CosmosPartitionKey(value: string) {
 
 export function CosmosDateTime(value?: string) {
   return annotate(value, 'DateTime');
+}
+
+export function CosmosUniqueKey(value?: string) {
+  return annotate(value, 'UniqueKey');
 }
 
 export const InjectModel = (model: any) => Inject(getModelToken(model.name));
