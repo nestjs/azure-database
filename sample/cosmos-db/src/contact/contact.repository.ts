@@ -1,4 +1,5 @@
 import { Container } from '@azure/cosmos';
+import { InjectModel } from '@nestjs/azure-database';
 import { Logger, Injectable } from '@nestjs/common';
 import { Contact } from './contact.model';
 
@@ -6,7 +7,7 @@ import { Contact } from './contact.model';
 export class ContactRepository {
   private logger = new Logger(this.constructor.name);
 
-  constructor(private readonly container: Container) {}
+  constructor(@InjectModel(Contact) private readonly container: Container) {}
 
   async create(item: Contact): Promise<Contact> {
     item.createdAt = new Date();
