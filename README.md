@@ -195,9 +195,9 @@ The `AzureTableStorageRepository` provides a couple of public APIs and Interface
 
   @Post()
   async create(contact: Contact, rowKeyValue: string): Promise<Contact> {
-        //if rowKeyValue is null, rowKeyValue will generate a UUID
-        return this.contactRepository.create(contact, rowKeyValue)
-    }
+    //if rowKeyValue is null, rowKeyValue will generate a UUID
+    return this.contactRepository.create(contact, rowKeyValue)
+  }
 
 ```
 
@@ -209,7 +209,7 @@ The `AzureTableStorageRepository` provides a couple of public APIs and Interface
   @Get(':rowKey')
   async getContact(@Param('rowKey') rowKey) {
     try {
-      return await this.contactService.find(rowKey, new Contact());
+      return await this.contactRepository.find(rowKey, new Contact());
     } catch (error) {
       // Entity not found
       throw new UnprocessableEntityException(error);
@@ -222,7 +222,7 @@ The `AzureTableStorageRepository` provides a couple of public APIs and Interface
 ```typescript
   @Get()
   async getAllContacts() {
-    return await this.contactService.findAll();
+    return await this.contactRepository.findAll();
   }
 ```
 
@@ -238,7 +238,7 @@ The `AzureTableStorageRepository` provides a couple of public APIs and Interface
       // Disclaimer: Assign only the properties you are expecting!
       Object.assign(contactEntity, contactData);
 
-      return await this.contactService.update(rowKey, contactEntity);
+      return await this.contactRepository.update(rowKey, contactEntity);
     } catch (error) {
       throw new UnprocessableEntityException(error);
     }
@@ -250,7 +250,7 @@ The `AzureTableStorageRepository` provides a couple of public APIs and Interface
       // Disclaimer: Assign only the properties you are expecting!
       Object.assign(contactEntity, contactData);
 
-      return await this.contactService.update(rowKey, contactEntity);
+      return await this.contactRepository.update(rowKey, contactEntity);
     } catch (error) {
       throw new UnprocessableEntityException(error);
     }
@@ -266,7 +266,7 @@ The `AzureTableStorageRepository` provides a couple of public APIs and Interface
   @Delete(':rowKey')
   async deleteDelete(@Param('rowKey') rowKey) {
     try {
-      const response = await this.contactService.delete(rowKey, new Contact());
+      const response = await this.contactRepository.delete(rowKey, new Contact());
 
       if (response.statusCode === 204) {
         return null;
