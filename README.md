@@ -196,7 +196,7 @@ The `AzureTableStorageRepository` provides a couple of public APIs and Interface
   @Post()
   async create(contact: Contact, rowKeyValue: string): Promise<Contact> {
         //if rowKeyValue is null, rowKeyValue will generate a UUID
-        return this.contactRepository.create(contact, rowKeyValue)
+        return this.contactRepository.create(new Contact(contact), rowKeyValue)
     }
 
 ```
