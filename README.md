@@ -198,7 +198,6 @@ The `AzureTableStorageRepository` provides a couple of public APIs and Interface
     //if rowKeyValue is null, rowKeyValue will generate a UUID
     return this.contactRepository.create(contact, rowKeyValue)
   }
-
 ```
 
 ##### READ
