@@ -59,7 +59,7 @@ export class AzureTableStorageRepository<T> implements Repository<T> {
     currentToken?: AzureTableContinuationToken,
   ): Promise<AzureTableStorageResultList<T>> {
     // get the query locally if any
-    tableQuery = this.query || tableQuery;
+    tableQuery = tableQuery || this.query;
 
     const result = await this.manager.queryEntities<azure.TableService.EntityMetadata>(
       this.tableName,
