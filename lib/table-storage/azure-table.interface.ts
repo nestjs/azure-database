@@ -38,3 +38,5 @@ export interface Repository<T> {
 
   delete(rowKey: string, entity: T): Promise<AzureTableStorageResponse>;
 }
+
+export type ValueType = ((e: any) => string) | string;

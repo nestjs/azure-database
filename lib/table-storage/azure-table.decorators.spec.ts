@@ -53,6 +53,22 @@ describe('Azure Table Storage Decorators', () => {
         },
       });
     });
+
+    it('should add a PartitionKey based on Fn', () => {
+      @EntityPartitionKey(d => d.id + d.name)
+      class MockClass {
+        id = '1';
+        name = '2';
+      }
+
+      const metadata = Reflect.getMetadata(AZURE_TABLE_ENTITY, MockClass);
+      expect(metadata).toStrictEqual({
+        PartitionKey: {
+          $: 'Edm.String',
+          _: '12',
+        },
+      });
+    });
   });
 
   describe('@EntityRowKey()', () => {

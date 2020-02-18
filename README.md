@@ -7,7 +7,7 @@
 [linux-image]: https://img.shields.io/travis/nestjs/nest/master.svg?label=linux
 [linux-url]: https://travis-ci.org/nestjs/nest
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="blank">Node.js</a> framework for building efficient and scalable server-side applications, heavily inspired by <a href="https://angular.io" target="blank">Angular</a>.</p>
+  <p align="center">A progressive <a href="http://nodejs.org" target="blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
     <p align="center">
 <a href="https://www.npmjs.com/~nestjscore"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
 <a href="https://www.npmjs.com/~nestjscore"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
@@ -201,10 +201,9 @@ The `AzureTableStorageRepository` provides a couple of public APIs and Interface
 
   @Post()
   async create(contact: Contact, rowKeyValue: string): Promise<Contact> {
-        //if rowKeyValue is null, rowKeyValue will generate a UUID
-        return this.contactRepository.create(contact, rowKeyValue)
-    }
-
+    //if rowKeyValue is null, rowKeyValue will generate a UUID
+    return this.contactRepository.create(contact, rowKeyValue)
+  }
 ```
 
 ##### READ
@@ -215,7 +214,7 @@ The `AzureTableStorageRepository` provides a couple of public APIs and Interface
   @Get(':rowKey')
   async getContact(@Param('rowKey') rowKey) {
     try {
-      return await this.contactService.find(rowKey, new Contact());
+      return await this.contactRepository.find(rowKey, new Contact());
     } catch (error) {
       // Entity not found
       throw new UnprocessableEntityException(error);
@@ -228,7 +227,7 @@ The `AzureTableStorageRepository` provides a couple of public APIs and Interface
 ```typescript
   @Get()
   async getAllContacts() {
-    return await this.contactService.findAll();
+    return await this.contactRepository.findAll();
   }
 ```
 
@@ -244,7 +243,7 @@ The `AzureTableStorageRepository` provides a couple of public APIs and Interface
       // Disclaimer: Assign only the properties you are expecting!
       Object.assign(contactEntity, contactData);
 
-      return await this.contactService.update(rowKey, contactEntity);
+      return await this.contactRepository.update(rowKey, contactEntity);
     } catch (error) {
       throw new UnprocessableEntityException(error);
     }
@@ -256,7 +255,7 @@ The `AzureTableStorageRepository` provides a couple of public APIs and Interface
       // Disclaimer: Assign only the properties you are expecting!
       Object.assign(contactEntity, contactData);
 
-      return await this.contactService.update(rowKey, contactEntity);
+      return await this.contactRepository.update(rowKey, contactEntity);
     } catch (error) {
       throw new UnprocessableEntityException(error);
     }
@@ -272,7 +271,7 @@ The `AzureTableStorageRepository` provides a couple of public APIs and Interface
   @Delete(':rowKey')
   async deleteDelete(@Param('rowKey') rowKey) {
     try {
-      const response = await this.contactService.delete(rowKey, new Contact());
+      const response = await this.contactRepository.delete(rowKey, new Contact());
 
       if (response.statusCode === 204) {
         return null;

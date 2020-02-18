@@ -1,5 +1,6 @@
 import { Inject } from '@nestjs/common';
 import { getRepositoryToken } from './azure-table.providers';
+import { ValueType } from './azure-table.interface';
 
 export const AZURE_TABLE_ENTITY = 'azure-table-storage:entity';
 
@@ -37,16 +38,14 @@ function validateType(edmType: AnnotationPropertyType, target: object /* Functio
 
     if (edmTypeName.toLowerCase().includes(propertyType.name.toLocaleLowerCase()) === false) {
       throw new Error(
-        `EDM type of "${
-          target.constructor.name
-        }.${propertyKey}" is ${edmType}. The equivalent of ${edmType} is ${edmTypeName}. ` +
+        `EDM type of "${target.constructor.name}.${propertyKey}" is ${edmType}. The equivalent of ${edmType} is ${edmTypeName}. ` +
           `"${propertyKey}" should be of type ${edmTypeName}. Got ${propertyType.name}`,
       );
     }
   }
 }
 
-function annotate(value: string, type: AnnotationPropertyType) {
+function annotate(value: ValueType, type: AnnotationPropertyType) {
   return (target: object /* Function */, propertyKey?: string | undefined) => {
     // check if the property type matches the annotated type
     validateType(type, target, propertyKey);
@@ -62,6 +61,8 @@ function annotate(value: string, type: AnnotationPropertyType) {
       ...storedEntityDescriptor,
     };
 
+    const val = typeof value === 'string' ? value : value(new (target as any)());
+
     // Note: if propertyKey is truthy, we are then annotating a class property declaration
     if (isPropertyAnnotation) {
       /*
@@ -73,7 +74,7 @@ function annotate(value: string, type: AnnotationPropertyType) {
       */
 
       entityDescriptor = {
-        [propertyKey]: { _: value, $: type },
+        [propertyKey]: { _: val, $: type },
         ...entityDescriptor,
       };
     } else {
@@ -103,7 +104,7 @@ function annotate(value: string, type: AnnotationPropertyType) {
       if (isPartitionKey || isRowKey) {
         entityDescriptor = {
           ...entityDescriptor,
-          [type]: { _: value || propertyKey, $: 'Edm.String' },
+          [type]: { _: val || propertyKey, $: 'Edm.String' },
         };
       }
     }
@@ -112,11 +113,11 @@ function annotate(value: string, type: AnnotationPropertyType) {
   };
 }
 
-export function EntityPartitionKey(value: string) {
+export function EntityPartitionKey(value: ValueType) {
   return annotate(value, 'PartitionKey');
 }
 
-export function EntityRowKey(value: string) {
+export function EntityRowKey(value: ValueType) {
   return annotate(value, 'RowKey');
 }
 
