@@ -1,7 +1,7 @@
 import { Inject } from '@nestjs/common';
 import { getConnectionToken, getModelToken } from './cosmos-db.utils';
 
-export const COMSOS_DB_ENTITY = 'cosmos-db:entity';
+export const AZURE_COMSOS_DB_ENTITY = 'cosmos-db:entity';
 
 type AnnotationPropertyType = 'PartitionKey' | 'DateTime' | 'UniqueKey';
 
@@ -37,7 +37,7 @@ function annotate(value: string, type: AnnotationPropertyType) {
     target = isPropertyAnnotation ? target.constructor : target;
 
     // get previous stored entity descriptor
-    const storedEntityDescriptor = Reflect.getMetadata(COMSOS_DB_ENTITY, target) || {};
+    const storedEntityDescriptor = Reflect.getMetadata(AZURE_COMSOS_DB_ENTITY, target) || {};
     let entityDescriptor = {
       ...storedEntityDescriptor,
     };
@@ -83,7 +83,7 @@ function annotate(value: string, type: AnnotationPropertyType) {
       }
     }
 
-    Reflect.defineMetadata(COMSOS_DB_ENTITY, entityDescriptor, target);
+    Reflect.defineMetadata(AZURE_COMSOS_DB_ENTITY, entityDescriptor, target);
   };
 }
 
