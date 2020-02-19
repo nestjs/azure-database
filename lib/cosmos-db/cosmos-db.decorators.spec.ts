@@ -1,4 +1,4 @@
-import { AZURE_COMSOS_DB_ENTITY, CosmosPartitionKey } from './cosmos-db.decorators';
+import { AZURE_COSMOS_DB_ENTITY, CosmosPartitionKey } from './cosmos-db.decorators';
 
 describe('Azure CosmosDB Decorators', () => {
   beforeEach(() => {
@@ -11,7 +11,7 @@ describe('Azure CosmosDB Decorators', () => {
       @CosmosPartitionKey('value')
       class MockClass {}
 
-      const metadata = Reflect.getMetadata(AZURE_COMSOS_DB_ENTITY, MockClass);
+      const metadata = Reflect.getMetadata(AZURE_COSMOS_DB_ENTITY, MockClass);
       expect(metadata).toStrictEqual({
         PartitionKey: 'value',
       });
