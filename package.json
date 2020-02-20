@@ -19,6 +19,7 @@
     "prettier": "prettier src/**/*.ts --write && git status",
     "build": "rimraf dist && npm run build:lib && npm test",
     "build:lib": "tsc -p tsconfig.json",
+    "prepare": "npm run build",
     "prepublish:npm": "npm run build",
     "publish:npm": "npm publish --access public",
     "prepublish:next": "npm run build",
