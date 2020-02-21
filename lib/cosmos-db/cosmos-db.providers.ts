@@ -1,6 +1,8 @@
-import { ContainerDefinition, IndexKind, DataType, Database } from '@azure/cosmos';
+import { ContainerDefinition, IndexKind, DataType, Database, Container } from '@azure/cosmos';
 import { AZURE_COSMOS_DB_ENTITY } from './cosmos-db.decorators';
 import { getConnectionToken, getModelToken, pluralize } from './cosmos-db.utils';
+import { Provider } from '@nestjs/common';
+import { CosmosDbRepository } from './cosmos-db.repository';
 
 export interface PartitionKeyValues {
   PartitionKey: string;
@@ -60,4 +62,24 @@ export function createAzureCosmosDbProviders(
     inject: [getConnectionToken(connectionName)],
   }));
   return providers;
+}
+
+export function createRepository(entity: Function): Provider[] {
+  return [getAzureCosmosRepositoryProvider(entity)];
+}
+
+export function getAzureCosmosRepositoryProvider(model: any): Provider {
+  const provide = getModelToken(model.name);
+  const o = {
+    provide,
+    useFactory: (container: Container) => {
+      return new CosmosDbRepository(container);
+    },
+    inject: [Container, AZURE_COSMOS_DB_ENTITY],
+  };
+  return o;
+}
+
+export function getAzureCosmosRepositoryToken(entity: Function) {
+  return `${entity.name}AzureCosmosDbRepository`;
 }

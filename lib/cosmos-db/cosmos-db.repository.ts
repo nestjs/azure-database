@@ -5,7 +5,7 @@ import { AzureCosmosRepository } from './cosmos-db.interface';
 @Injectable()
 export class CosmosDbRepository<T> implements AzureCosmosRepository<T> {
   // tslint:disable-next-line: no-empty
-  constructor(protected readonly container: Container) {}
+  constructor(private readonly container: Container) {}
 
   /**
    * Creates a new item in the Cosmos DB container.
