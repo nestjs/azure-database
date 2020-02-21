@@ -21,6 +21,14 @@ export interface AzureCosmosDbModuleAsyncOptions extends Pick<ModuleMetadata, 'i
   inject?: any[];
 }
 
+export interface AzureCosmosRepository<T> {
+  create(item: T): Promise<T>;
+  upsert(item: T): Promise<T>;
+  remove(id: string, partitionKeyValue: any): void;
+  findAll(): Promise<T[]>;
+  findById(id: string, partitionKeyValue: any): Promise<T>;
+}
+
 type GeoJsonTypes = 'Point' | 'Polygon' | 'LineStrings';
 
 export type Position = number[]; // [number, number] | [number, number, number]; Longitude, Latitude
