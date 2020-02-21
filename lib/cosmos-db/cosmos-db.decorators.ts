@@ -1,5 +1,6 @@
 import { Inject } from '@nestjs/common';
 import { getConnectionToken, getModelToken } from './cosmos-db.utils';
+import { getAzureCosmosRepositoryToken } from './cosmos-db.providers';
 
 export const AZURE_COSMOS_DB_ENTITY = 'cosmos-db:entity';
 
@@ -102,3 +103,5 @@ export function CosmosUniqueKey(value?: string) {
 export const InjectModel = (model: any) => Inject(getModelToken(model.name));
 
 export const InjectConnection = (name?: string) => Inject(getConnectionToken(name));
+
+export const InjectCosmosRepository = (entity: any) => Inject(getAzureCosmosRepositoryToken(entity));
