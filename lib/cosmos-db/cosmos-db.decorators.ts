@@ -104,4 +104,4 @@ export const InjectModel = (model: any) => Inject(getModelToken(model.name));
 
 export const InjectConnection = (name?: string) => Inject(getConnectionToken(name));
 
-export const InjectCosmosRepository = (entity: any) => Inject(getAzureCosmosRepositoryToken(entity));
+export const InjectCosmosRepository = (entity: any) => Inject(getAzureCosmosRepositoryToken(entity.name));
