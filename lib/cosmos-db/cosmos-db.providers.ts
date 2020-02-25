@@ -64,22 +64,18 @@ export function createAzureCosmosDbProviders(
   return providers;
 }
 
-export function createRepository(entity: Function): Provider[] {
-  return [getAzureCosmosRepositoryProvider(entity)];
-}
-
-export function getAzureCosmosRepositoryProvider(model: any): Provider {
-  const provide = getModelToken(model.name);
+export function getAzureCosmosRepositoryProvider(model: { dto: any }, connectionName: string): Provider {
+  const provide = getAzureCosmosRepositoryToken(model.dto.name);
   const o = {
     provide,
     useFactory: (container: Container) => {
       return new CosmosDbRepository(container);
     },
-    inject: [Container, AZURE_COSMOS_DB_ENTITY],
+    inject: [getModelToken(model.dto.name), getConnectionToken(connectionName)],
   };
   return o;
 }
 
-export function getAzureCosmosRepositoryToken(entity: Function) {
-  return `${entity.name}AzureCosmosDbRepository`;
+export function getAzureCosmosRepositoryToken(entity: string) {
+  return `${entity}AzureCosmosDbRepository`;
 }

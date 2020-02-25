@@ -1,7 +1,7 @@
 import { DynamicModule, Module } from '@nestjs/common';
 import { AzureCosmosDbCoreModule } from './cosmos-db-core.module';
 import { AzureCosmosDbModuleAsyncOptions, AzureCosmosDbOptions } from './cosmos-db.interface';
-import { createAzureCosmosDbProviders } from './cosmos-db.providers';
+import { createAzureCosmosDbProviders, getAzureCosmosRepositoryProvider } from './cosmos-db.providers';
 
 @Module({})
 export class AzureCosmosDbModule {
@@ -21,10 +21,14 @@ export class AzureCosmosDbModule {
 
   static forFeature(models: { dto: any; collection?: string }[] = [], connectionName?: string): DynamicModule {
     const providers = createAzureCosmosDbProviders(connectionName, models);
+    const repositoryProviders = models.map((model: { dto: any }) => {
+      return getAzureCosmosRepositoryProvider(model, connectionName);
+    });
+
     return {
       module: AzureCosmosDbModule,
-      providers,
-      exports: providers,
+      providers: [...providers, ...repositoryProviders],
+      exports: [...providers, ...repositoryProviders],
     };
   }
 }
