@@ -38,7 +38,7 @@ function annotate(value: string, type: AnnotationPropertyType) {
     target = isPropertyAnnotation ? target.constructor : target;
 
     // get previous stored entity descriptor
-    const storedEntityDescriptor = Reflect.getMetadata(COMSOS_DB_ENTITY, target) || {};
+    const storedEntityDescriptor = Reflect.getMetadata(AZURE_COSMOS_DB_ENTITY, target) || {};
     let entityDescriptor = {
       ...storedEntityDescriptor,
     };
@@ -84,7 +84,7 @@ function annotate(value: string, type: AnnotationPropertyType) {
       }
     }
 
-    Reflect.defineMetadata(COMSOS_DB_ENTITY, entityDescriptor, target);
+    Reflect.defineMetadata(AZURE_COSMOS_DB_ENTITY, entityDescriptor, target);
   };
 }
 
