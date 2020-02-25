@@ -22,7 +22,7 @@ export class AzureCosmosDbModule {
   static forFeature(models: { dto: any; collection?: string }[] = [], connectionName?: string): DynamicModule {
     const providers = createAzureCosmosDbProviders(connectionName, models);
     const repositoryProviders = models.map((model: { dto: any }) => {
-      return getAzureCosmosRepositoryProvider(model, connectionName);
+      return getAzureCosmosRepositoryProvider(model);
     });
 
     return {

@@ -64,14 +64,14 @@ export function createAzureCosmosDbProviders(
   return providers;
 }
 
-export function getAzureCosmosRepositoryProvider(model: { dto: any }, connectionName: string): Provider {
+export function getAzureCosmosRepositoryProvider(model: { dto: any }): Provider {
   const provide = getAzureCosmosRepositoryToken(model.dto.name);
   const o = {
     provide,
     useFactory: (container: Container) => {
       return new CosmosDbRepository(container);
     },
-    inject: [getModelToken(model.dto.name), getConnectionToken(connectionName)],
+    inject: [getModelToken(model.dto.name)],
   };
   return o;
 }
