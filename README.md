@@ -202,7 +202,7 @@ The `AzureTableStorageRepository` provides a couple of public APIs and Interface
   @Post()
   async create(contact: Contact, rowKeyValue: string): Promise<Contact> {
     //if rowKeyValue is null, rowKeyValue will generate a UUID
-    return this.contactRepository.create(contact, rowKeyValue)
+    return this.contactRepository.create(new Contact(contact), rowKeyValue)
   }
 ```
 
@@ -416,7 +416,7 @@ The Azure Cosmos DB `Container` provides a couple of public APIs and Interfaces 
 
   @Post()
   async create(event: Event): Promise<Event> {
-      return this.eventContainer.items.create(event)
+      return this.eventContainer.items.create(new Event(event))
   }
 
 ```
