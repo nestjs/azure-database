@@ -26,18 +26,18 @@
     "publish:next": "npm publish --access public --tag next"
   },
   "peerDependencies": {
-    "@nestjs/common": "^6.0.0",
-    "@nestjs/core": "^6.0.0"
+    "@nestjs/common": "^7.0.0",
+    "@nestjs/core": "^7.0.0"
   },
   "dependencies": {
     "@azure/cosmos": "^3.4.2",
     "@azure/ms-rest-js": "^2.0.4",
-    "@nestjs/common": "^6.0.0",
-    "@nestjs/core": "^6.0.0",
+    "@nestjs/common": "^7.0.0",
+    "@nestjs/core": "^7.0.0",
     "azure-storage": "^2.10.3"
   },
   "devDependencies": {
-    "@nestjs/testing": "6.11.11",
+    "@nestjs/testing": "7.0.1",
     "@types/jest": "25.1.4",
     "@types/node": "11.13.21",
     "dotenv": "^8.1.0",
