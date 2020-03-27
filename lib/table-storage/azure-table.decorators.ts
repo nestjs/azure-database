@@ -45,7 +45,7 @@ function validateType(edmType: AnnotationPropertyType, target: object /* Functio
   }
 }
 
-function annotate(value: ValueType, type: AnnotationPropertyType) {
+function annotate(value: ValueType | undefined, type: AnnotationPropertyType) {
   return (target: object /* Function */, propertyKey?: string | undefined) => {
     // check if the property type matches the annotated type
     validateType(type, target, propertyKey);
@@ -61,7 +61,14 @@ function annotate(value: ValueType, type: AnnotationPropertyType) {
       ...storedEntityDescriptor,
     };
 
-    const val = typeof value === 'string' ? value : value(new (target as any)());
+    let val: string;
+    if (typeof value === 'string') {
+      val = value;
+    } else if (typeof value === 'function') {
+      val = value(new (target as any)());
+    } else {
+      val = propertyKey;
+    }
 
     // Note: if propertyKey is truthy, we are then annotating a class property declaration
     if (isPropertyAnnotation) {
