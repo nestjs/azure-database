@@ -13,6 +13,8 @@ function validateType(annotationType: AnnotationPropertyType, target: object /* 
     let propertyTypeName = '';
     if (annotationType === 'DateTime') {
       propertyTypeName = Date.name;
+    } else if (annotationType === 'UniqueKey') {
+      propertyTypeName = String.name;
     } else {
       throw new Error(`Type ${annotationType} is not supported.`);
     }
