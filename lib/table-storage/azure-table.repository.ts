@@ -27,7 +27,7 @@ export class AzureTableStorageRepository<T> implements Repository<T> {
   }
   constructor(
     private readonly manager: AzureTableStorageService,
-    @Inject(AZURE_TABLE_STORAGE_NAME) private readonly tableName,
+    @Inject(AZURE_TABLE_STORAGE_NAME) private readonly tableName: string,
   ) {}
 
   select(...args: any[]): Repository<T> {
