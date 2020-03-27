@@ -187,7 +187,8 @@ import { Contact } from './contact.entity';
 export class ContactService {
   constructor(
     @InjectRepository(Contact)
-    private readonly contactRepository: Repository<Contact>) {}
+    private readonly contactRepository: Repository<Contact>,
+  ) {}
 }
 ```
 
@@ -202,7 +203,7 @@ The `AzureTableStorageRepository` provides a couple of public APIs and Interface
   @Post()
   async create(contact: Contact, rowKeyValue: string): Promise<Contact> {
     //if rowKeyValue is null, rowKeyValue will generate a UUID
-    return this.contactRepository.create(new Contact(contact), rowKeyValue)
+    return this.contactRepository.create(contact, rowKeyValue)
   }
 ```
 
@@ -305,6 +306,8 @@ if (process.env.NODE_ENV !== 'production') require('dotenv').config();
 > This line must be added before any other imports!
 
 ### Example
+
+> Note: Check out the CosmosDB example project included in the [sample folder](https://github.com/nestjs/azure-database/tree/master/sample/cosmos-db)
 
 #### Prepare your entity
 
@@ -416,14 +419,14 @@ The Azure Cosmos DB `Container` provides a couple of public APIs and Interfaces 
 
   @Post()
   async create(event: Event): Promise<Event> {
-      return this.eventContainer.items.create(new Event(event))
+      return this.eventContainer.items.create(event)
   }
 
 ```
 
 ##### READ
 
-`query<T>(query: string | SqlQuerySpec, options?: FeedOptions): QueryIterator<T> `: run a SQL Query to find a document.
+`query<T>(query: string | SqlQuerySpec, options?: FeedOptions): QueryIterator<T>`: run a SQL Query to find a document.
 
 ```typescript
   @Get(':id')
@@ -449,8 +452,8 @@ The Azure Cosmos DB `Container` provides a couple of public APIs and Interfaces 
 
 ##### UPDATE
 
-`read<T>(options?: RequestOptions): Promise<ItemResponse<T>>  `: Get a document.
-`replace<T>(body: T, options?: RequestOptions): Promise<ItemResponse<T>>  `: Updates a document.
+`read<T>(options?: RequestOptions): Promise<ItemResponse<T>>`: Get a document.
+`replace<T>(body: T, options?: RequestOptions): Promise<ItemResponse<T>>`: Updates a document.
 
 ```typescript
   @Put(':id')
@@ -473,7 +476,7 @@ The Azure Cosmos DB `Container` provides a couple of public APIs and Interfaces 
 
 ##### DELETE
 
-`delete<T>(options?: RequestOptions): Promise<ItemResponse<T>> `: Removes an entity from the database.
+`delete<T>(options?: RequestOptions): Promise<ItemResponse<T>>`: Removes an entity from the database.
 
 ```typescript
 
@@ -483,7 +486,7 @@ The Azure Cosmos DB `Container` provides a couple of public APIs and Interfaces 
       const { resource: deleted } = await this.eventContainer
        .item(id, 'type')
        .delete<Event>()
-        
+
       return deleted;
     } catch (error) {
       throw new UnprocessableEntityException(error);
