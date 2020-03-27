@@ -6,6 +6,11 @@ export interface AzureTableStorageOptions {
   connectionString?: string;
 }
 
+export interface AzureTableStorageFeatureOptions {
+  table?: string;
+  createTableIfNotExists?: boolean;
+}
+
 // tslint:disable-next-line: no-empty-interface
 export interface AzureTableStorageResponse extends azure.ServiceResponse {}
 

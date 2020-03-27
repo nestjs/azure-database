@@ -1,6 +1,6 @@
 import { DynamicModule, Module } from '@nestjs/common';
 import { AZURE_TABLE_STORAGE_MODULE_OPTIONS, AZURE_TABLE_STORAGE_NAME } from './azure-table.constant';
-import { AzureTableStorageOptions } from './azure-table.interface';
+import { AzureTableStorageOptions, AzureTableStorageFeatureOptions } from './azure-table.interface';
 import { createRepositoryProviders } from './azure-table.providers';
 import { AzureTableStorageRepository } from './azure-table.repository';
 import { AzureTableStorageService } from './azure-table.service';
@@ -13,7 +13,14 @@ export class AzureTableStorageModule {
   static forRoot(options?: AzureTableStorageOptions): DynamicModule {
     return {
       module: AzureTableStorageModule,
-      providers: [...PROVIDERS, { provide: AZURE_TABLE_STORAGE_MODULE_OPTIONS, useValue: options }],
+      providers: [
+        ...PROVIDERS,
+        { provide: AZURE_TABLE_STORAGE_MODULE_OPTIONS, useValue: options },
+        {
+          provide: AZURE_TABLE_STORAGE_NAME,
+          useValue: '',
+        },
+      ],
       exports: [...EXPORTS, AZURE_TABLE_STORAGE_MODULE_OPTIONS],
     };
   }
@@ -21,13 +28,10 @@ export class AzureTableStorageModule {
   static forFeature(
     // tslint:disable-next-line: ban-types
     entity: Function,
-    {
+    { table, createTableIfNotExists }: AzureTableStorageFeatureOptions = {
       // use either the given table name or the entity name
-      table = entity.name,
-      createTableIfNotExists = false,
-    }: {
-      table?: string;
-      createTableIfNotExists?: boolean;
+      table: entity.name,
+      createTableIfNotExists: false,
     },
   ): DynamicModule {
     const repositoryProviders = createRepositoryProviders(entity);
@@ -41,7 +45,7 @@ export class AzureTableStorageModule {
           provide: AZURE_TABLE_STORAGE_NAME,
           useFactory: async (azureTableStorageService: AzureTableStorageService) => {
             if (createTableIfNotExists) {
-              return (await azureTableStorageService.createTableIfNotExists(table)).TableName;
+              table = (await azureTableStorageService.createTableIfNotExists(table)).TableName;
             }
             return table;
           },
