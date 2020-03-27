@@ -35,7 +35,7 @@ export class ContactRepository {
     };
 
     const results = await this.container.items
-      .query<Contact>(querySpec)
+      .query<Contact>(querySpec, {})
       .fetchAll();
     this.logger.verbose(`Find By Id RUs: ${results.requestCharge}`);
     return results.resources;
@@ -53,7 +53,7 @@ export class ContactRepository {
     };
 
     const results = await this.container.items
-      .query<Contact>(querySpec)
+      .query<Contact>(querySpec, {})
       .fetchAll();
     this.logger.verbose(`Find By Id RUs: ${results.requestCharge}`);
     return results.resources.shift();
