@@ -42,7 +42,7 @@
     "@types/node": "11.13.21",
     "dotenv": "^8.1.0",
     "husky": "4.2.5",
-    "jest": "25.3.0",
+    "jest": "25.4.0",
     "lint-staged": "10.1.6",
     "prettier": "2.0.4",
     "reflect-metadata": "^0.1.13",
