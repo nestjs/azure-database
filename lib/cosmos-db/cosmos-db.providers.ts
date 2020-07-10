@@ -18,6 +18,9 @@ export function createAzureCosmosDbProviders(
       const containerName = model.collection ?? pluralize(model.dto.name);
       const containerOptions: ContainerDefinition = {
         id: containerName,
+		uniqueKeyPolicy: {
+          uniqueKeys: [],
+        },
       };
 
       // If the container has a DateTime field we add a Range Index
