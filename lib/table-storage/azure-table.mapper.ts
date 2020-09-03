@@ -18,7 +18,7 @@ export interface PartitionRowKeyValues {
 
 export class AzureEntityMapper {
   static serializeAll<E>(entriesDescriptor: azure.TableService.EntityMetadata[]): E[] {
-    return entriesDescriptor.map<E>(entry => {
+    return entriesDescriptor.map<E>((entry) => {
       return AzureEntityMapper.serialize<E>(entry);
     });
   }
@@ -37,19 +37,22 @@ export class AzureEntityMapper {
     // Note: make sure we are getting the metatadat from the DTO constructor
     // See: src/table-storage/azure-table.repository.ts
     const entityDescriptor = Reflect.getMetadata(AZURE_TABLE_ENTITY, partialDto.constructor) as PartitionRowKeyValues;
+    const entity: PartitionRowKeyValues = {
+      ...entityDescriptor,
+    };
 
     for (const key in partialDto) {
       if (entityDescriptor[key]) {
-        // update the value propery
-        entityDescriptor[key]._ = partialDto[key];
+        entity[key] = { _: partialDto[key], $: entityDescriptor[key].$ };
       }
     }
-    // make sure we have a unique RowKey
-    entityDescriptor.RowKey._ = rowKeyValue;
+
+    entity.RowKey._ = rowKeyValue;
 
     logger.debug(`Mapped Entity from DTO:`);
     logger.debug(`- PartitionKey=${entityDescriptor.PartitionKey._}`);
     logger.debug(`- RowKey=${rowKeyValue}`);
-    return entityDescriptor as (D & PartitionRowKeyValues);
+
+    return entity as D & PartitionRowKeyValues;
   }
 }
