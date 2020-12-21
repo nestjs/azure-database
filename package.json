@@ -39,7 +39,7 @@
   "devDependencies": {
     "@commitlint/cli": "11.0.0",
     "@commitlint/config-angular": "11.0.0",
-    "@nestjs/testing": "7.6.3",
+    "@nestjs/testing": "7.6.4",
     "@types/jest": "26.0.19",
     "@types/node": "11.13.21",
     "dotenv": "^8.1.0",
