@@ -37,6 +37,8 @@
     "azure-storage": "^2.10.3"
   },
   "devDependencies": {
+    "@commitlint/cli": "11.0.0",
+    "@commitlint/config-angular": "11.0.0",
     "@nestjs/testing": "7.6.3",
     "@types/jest": "26.0.19",
     "@types/node": "11.13.21",
@@ -54,13 +56,13 @@
   },
   "lint-staged": {
     "*.ts": [
-      "prettier --write",
-      "git add"
+      "prettier --write"
     ]
   },
   "husky": {
     "hooks": {
-      "pre-commit": "lint-staged"
+      "pre-commit": "lint-staged",
+      "commit-msg": "commitlint -c .commitlintrc.json -E HUSKY_GIT_PARAMS"
     }
   }
 }
