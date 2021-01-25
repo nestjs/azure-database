@@ -26,7 +26,7 @@ export class AzureTableStorageModule {
   }
 
   static forFeature(
-    // tslint:disable-next-line: ban-types
+    // eslint-disable-next-line @typescript-eslint/ban-types
     entity: Function,
     { table, createTableIfNotExists }: AzureTableStorageFeatureOptions = {
       // use either the given table name or the entity name

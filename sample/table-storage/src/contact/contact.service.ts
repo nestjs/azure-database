@@ -14,7 +14,7 @@ export class ContactService {
     private readonly contactRepository: Repository<Contact>,
   ) {}
 
-  // find one contact entitu by its rowKey
+  // find one contact entity by its rowKey
   async find(rowKey: string, contact: Contact): Promise<Contact> {
     return this.contactRepository.find(rowKey, contact);
   }

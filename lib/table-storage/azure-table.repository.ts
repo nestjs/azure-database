@@ -15,7 +15,6 @@ const logger = new Logger(`AzureStorageRepository`);
 
 @Injectable()
 export class AzureTableStorageRepository<T> implements Repository<T> {
-  // tslint:disable-next-line: variable-name
   private _query: AzureTableStorageQuery = null;
   private get query(): AzureTableStorageQuery {
     // first call we return this.manager.queryInstance
@@ -50,6 +49,7 @@ export class AzureTableStorageRepository<T> implements Repository<T> {
     this.query = this.query.or(condition, ...args);
     return this;
   }
+  // eslint-disable-next-line @typescript-eslint/ban-types
   toQueryObject(): Object {
     return this.query.toQueryObject();
   }

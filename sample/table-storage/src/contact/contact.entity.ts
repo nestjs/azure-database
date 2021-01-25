@@ -7,6 +7,9 @@ import {
 @EntityPartitionKey('ContactID')
 @EntityRowKey('ContactName')
 export class Contact {
-  @EntityString() name: string;
-  @EntityString() message: string;
+  @EntityString()
+  name: string;
+
+  @EntityString()
+  message: string;
 }
