@@ -108,7 +108,6 @@ export class AzureTableStorageRepository<T> implements Repository<T> {
     logger.debug(`Inserting Entity in ${this.tableName}:`);
 
     entity = AzureEntityMapper.createEntity<T>(entity, rowKeyValue);
-    // tslint:disable-next-line: no-console
     console.table(entity);
 
     const result = await this.manager.insertEntity<T>(this.tableName, entity);
@@ -126,7 +125,6 @@ export class AzureTableStorageRepository<T> implements Repository<T> {
     const result = await this.manager.replaceEntity(this.tableName, entity);
 
     logger.debug(`Entity updated successfuly`);
-    // tslint:disable-next-line: no-console
     console.table(entity);
     return AzureEntityMapper.serialize<T>(result);
   }

@@ -2,7 +2,6 @@ import { AZURE_COSMOS_DB_ENTITY, CosmosPartitionKey } from './cosmos-db.decorato
 
 describe('Azure CosmosDB Decorators', () => {
   beforeEach(() => {
-    // tslint:disable-next-line: no-empty
     function MockEntity() {}
   });
 

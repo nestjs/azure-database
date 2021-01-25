@@ -110,7 +110,6 @@ const uncountables = [
 export function pluralize(str: string) {
   let found: any[][];
   str = str.toLowerCase();
-  // tslint:disable-next-line: no-bitwise
   if (!~uncountables.indexOf(str)) {
     found = rules.filter(rule => {
       return str.match(rule[0]);
