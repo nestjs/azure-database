@@ -1,6 +1,11 @@
-import { DynamicModule, Module } from '@nestjs/common';
+import { DynamicModule, Module, Provider } from '@nestjs/common';
 import { AZURE_TABLE_STORAGE_MODULE_OPTIONS, AZURE_TABLE_STORAGE_NAME } from './azure-table.constant';
-import { AzureTableStorageOptions, AzureTableStorageFeatureOptions } from './azure-table.interface';
+import {
+  AzureTableStorageOptions,
+  AzureTableStorageFeatureOptions,
+  AzureTableStorageModuleAsyncOptions,
+  AzureTableStorageOptionsFactory,
+} from './azure-table.interface';
 import { createRepositoryProviders } from './azure-table.providers';
 import { AzureTableStorageRepository } from './azure-table.repository';
 import { AzureTableStorageService } from './azure-table.service';
@@ -22,6 +27,39 @@ export class AzureTableStorageModule {
         },
       ],
       exports: [...EXPORTS, AZURE_TABLE_STORAGE_MODULE_OPTIONS],
+    };
+  }
+
+  static forRootAsync(options: AzureTableStorageModuleAsyncOptions): DynamicModule {
+    return {
+      module: AzureTableStorageModule,
+      imports: options.imports,
+      providers: [
+        {
+          provide: AZURE_TABLE_STORAGE_NAME,
+          useValue: '',
+        },
+        ...PROVIDERS,
+        this.createAsyncOptionsProvider(options),
+      ],
+      exports: [...EXPORTS],
+    };
+  }
+
+  private static createAsyncOptionsProvider(options: AzureTableStorageModuleAsyncOptions): Provider {
+    if (options.useFactory) {
+      return {
+        provide: AZURE_TABLE_STORAGE_MODULE_OPTIONS,
+        useFactory: options.useFactory,
+        inject: options.inject,
+      };
+    }
+
+    return {
+      provide: AZURE_TABLE_STORAGE_MODULE_OPTIONS,
+      useFactory: async (optionsFactory: AzureTableStorageOptionsFactory) =>
+        await optionsFactory.createAzureTableStorageOptions(),
+      inject: [options.useExisting || options.useClass],
     };
   }
 
