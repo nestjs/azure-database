@@ -10,7 +10,7 @@ export function createAzureCosmosDbProviders(
   connectionName?: string,
   models: { dto: any; collection?: string }[] = [],
 ) {
-  const providers = (models || []).map(model => ({
+  const providers = (models || []).map((model) => ({
     provide: getModelToken(model.dto.name),
     useFactory: async (database: Database) => {
       const entityDescriptor = Reflect.getMetadata(AZURE_COSMOS_DB_ENTITY, model.dto) as PartitionKeyValues;
@@ -18,7 +18,7 @@ export function createAzureCosmosDbProviders(
       const containerName = model.collection ?? pluralize(model.dto.name);
       const containerOptions: ContainerDefinition = {
         id: containerName,
-		uniqueKeyPolicy: {
+        uniqueKeyPolicy: {
           uniqueKeys: [],
         },
       };

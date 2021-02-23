@@ -40,10 +40,23 @@ export class AzureTableStorageModule {
           useValue: '',
         },
         ...PROVIDERS,
-        this.createAsyncOptionsProvider(options),
+        ...this.createAsyncProviders(options),
       ],
       exports: [...EXPORTS],
     };
+  }
+
+  private static createAsyncProviders(options: AzureTableStorageModuleAsyncOptions): Provider[] {
+    if (options.useExisting || options.useFactory) {
+      return [this.createAsyncOptionsProvider(options)];
+    }
+    return [
+      this.createAsyncOptionsProvider(options),
+      {
+        provide: options.useClass,
+        useClass: options.useClass,
+      },
+    ];
   }
 
   private static createAsyncOptionsProvider(options: AzureTableStorageModuleAsyncOptions): Provider {

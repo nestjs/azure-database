@@ -19,6 +19,7 @@
     "prettier": "prettier src/**/*.ts --write && git status",
     "build": "rimraf dist && npm run build:lib && npm test",
     "lint": "eslint 'lib/**/*.ts' --fix",
+    "format": "prettier --write \"{lib,tests}/**/*.ts\"",
     "build:lib": "tsc -p tsconfig.json",
     "prepare": "npm run build",
     "prepublish:npm": "npm run build",
