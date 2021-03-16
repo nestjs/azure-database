@@ -55,7 +55,7 @@ describe('Azure Table Storage Decorators', () => {
     });
 
     it('should add a PartitionKey based on Fn', () => {
-      @EntityPartitionKey(d => d.id + d.name)
+      @EntityPartitionKey((d) => d.id + d.name)
       class MockClass {
         id = '1';
         name = '2';
@@ -111,7 +111,7 @@ describe('Azure Table Storage Decorators', () => {
       fn: EntityDateTime,
       tsType: 'Date',
     },
-  ].map(decorator => {
+  ].map((decorator) => {
     testDecorator(decorator.fn.name, decorator.fn, decorator.fn.name.replace('Entity', ''), decorator.tsType);
   });
 });

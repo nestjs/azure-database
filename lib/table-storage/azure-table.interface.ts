@@ -1,3 +1,4 @@
+import { ModuleMetadata, Type } from '@nestjs/common';
 import azure = require('azure-storage');
 
 export interface AzureTableStorageOptions {
@@ -6,21 +7,32 @@ export interface AzureTableStorageOptions {
   connectionString?: string;
 }
 
+export interface AzureTableStorageOptionsFactory {
+  createAzureTableStorageOptions(): Promise<AzureTableStorageOptions> | AzureTableStorageOptions;
+}
+
+export interface AzureTableStorageModuleAsyncOptions extends Pick<ModuleMetadata, 'imports'> {
+  useExisting?: Type<AzureTableStorageOptionsFactory>;
+  useClass?: Type<AzureTableStorageOptionsFactory>;
+  useFactory?: (...args: any[]) => Promise<AzureTableStorageOptions> | AzureTableStorageOptions;
+  inject?: any[];
+}
+
 export interface AzureTableStorageFeatureOptions {
   table?: string;
   createTableIfNotExists?: boolean;
 }
 
 // tslint:disable-next-line: no-empty-interface
-export interface AzureTableStorageResponse extends azure.ServiceResponse {}
+export type AzureTableStorageResponse = azure.ServiceResponse;
 
 // tslint:disable-next-line: no-empty-interface
 // export interface AzureTableStorageQuery extends azure.TableQuery {}
 export type AzureTableStorageQuery = azure.TableQuery;
 // tslint:disable-next-line: no-empty-interface
-export interface AzureTableContinuationToken extends azure.TableService.TableContinuationToken {}
+export type AzureTableContinuationToken = azure.TableService.TableContinuationToken;
 
-export interface AzureTableStorageResultList<T> extends azure.TableService.QueryEntitiesResult<T> {}
+export type AzureTableStorageResultList<T> = azure.TableService.QueryEntitiesResult<T>;
 
 export interface Repository<T> {
   select(...args: any[]): Repository<T> & AzureTableStorageQuery;
