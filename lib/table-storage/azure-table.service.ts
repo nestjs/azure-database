@@ -379,11 +379,11 @@ export class AzureTableStorageService implements azure.TableService {
   getMaxListeners(): number {
     return this.tableServiceInstance.getMaxListeners();
   }
-  // tslint:disable-next-line: ban-types
+  // eslint-disable-next-line @typescript-eslint/ban-types
   listeners(event: string | symbol): Function[] {
     return this.tableServiceInstance.listeners(event);
   }
-  // tslint:disable-next-line: ban-types
+  // eslint-disable-next-line @typescript-eslint/ban-types
   rawListeners(event: string | symbol): Function[] {
     return this.tableServiceInstance.rawListeners(event);
   }

@@ -19,12 +19,12 @@ export class ContactController {
   constructor(private readonly contactService: ContactService) {}
 
   @Get()
-  async getAllCats() {
+  async getAllContacts() {
     return await this.contactService.findAll();
   }
 
   @Get(':rowKey')
-  async getCat(@Param('rowKey') rowKey) {
+  async getContact(@Param('rowKey') rowKey) {
     try {
       return await this.contactService.find(rowKey, new Contact());
     } catch (error) {
@@ -34,14 +34,14 @@ export class ContactController {
   }
 
   @Post()
-  async createCat(
+  async createContact(
     @Body()
-    catData: ContactDTO,
+    contactData: ContactDTO,
   ) {
     try {
       const contact = new Contact();
       // Disclaimer: Assign only the properties you are expecting!
-      Object.assign(contact, catData);
+      Object.assign(contact, contactData);
 
       return await this.contactService.create(contact);
     } catch (error) {
@@ -50,11 +50,11 @@ export class ContactController {
   }
 
   @Put(':rowKey')
-  async saveCat(@Param('rowKey') rowKey, @Body() catData: ContactDTO) {
+  async saveContact(@Param('rowKey') rowKey, @Body() contactData: ContactDTO) {
     try {
       const contact = new Contact();
       // Disclaimer: Assign only the properties you are expecting!
-      Object.assign(contact, catData);
+      Object.assign(contact, contactData);
 
       return await this.contactService.update(rowKey, contact);
     } catch (error) {
@@ -63,14 +63,14 @@ export class ContactController {
   }
 
   @Patch(':rowKey')
-  async updateCatDetails(
+  async updateContactDetails(
     @Param('rowKey') rowKey,
-    @Body() catData: Partial<ContactDTO>,
+    @Body() contactData: Partial<ContactDTO>,
   ) {
     try {
       const contact = new Contact();
       // Disclaimer: Assign only the properties you are expecting!
-      Object.assign(contact, catData);
+      Object.assign(contact, contactData);
 
       return await this.contactService.update(rowKey, contact);
     } catch (error) {
@@ -79,7 +79,7 @@ export class ContactController {
   }
 
   @Delete(':rowKey')
-  async deleteDelete(@Param('rowKey') rowKey) {
+  async deleteContact(@Param('rowKey') rowKey) {
     try {
       const response = await this.contactService.delete(rowKey, new Contact());
 

@@ -5,9 +5,10 @@ export const AZURE_COSMOS_DB_ENTITY = 'cosmos-db:entity';
 
 type AnnotationPropertyType = 'PartitionKey' | 'DateTime' | 'UniqueKey';
 
+// eslint-disable-next-line @typescript-eslint/ban-types
 function validateType(annotationType: AnnotationPropertyType, target: object /* Function */, propertyKey?: string) {
   if (propertyKey) {
-    // tslint:disable-next-line: ban-types
+    // eslint-disable-next-line @typescript-eslint/ban-types
     const propertyType = Reflect.getMetadata('design:type', target, propertyKey) as Function;
 
     let propertyTypeName = '';
@@ -29,6 +30,7 @@ function validateType(annotationType: AnnotationPropertyType, target: object /* 
 }
 
 function annotate(value: string, type: AnnotationPropertyType) {
+  // eslint-disable-next-line @typescript-eslint/ban-types
   return (target: object /* Function */, propertyKey?: string | undefined) => {
     // check if the property type matches the annotated type
     validateType(type, target, propertyKey);

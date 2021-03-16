@@ -16,9 +16,10 @@ type AnnotationPropertyType =
   | 'Edm.Double'
   | 'Edm.DateTime';
 
+// eslint-disable-next-line @typescript-eslint/ban-types
 function validateType(edmType: AnnotationPropertyType, target: object /* Function */, propertyKey?: string) {
   if (propertyKey) {
-    // tslint:disable-next-line: ban-types
+    // eslint-disable-next-line @typescript-eslint/ban-types
     const propertyType = Reflect.getMetadata('design:type', target, propertyKey) as Function;
 
     let edmTypeName = '';
@@ -46,6 +47,7 @@ function validateType(edmType: AnnotationPropertyType, target: object /* Functio
 }
 
 function annotate(value: ValueType | undefined, type: AnnotationPropertyType) {
+  // eslint-disable-next-line @typescript-eslint/ban-types
   return (target: object /* Function */, propertyKey?: string | undefined) => {
     // check if the property type matches the annotated type
     validateType(type, target, propertyKey);
@@ -161,6 +163,6 @@ export function EntityDateTime(value?: string) {
 }
 
 export const InjectRepository = (
-  // tslint:disable-next-line: ban-types
+  // eslint-disable-next-line @typescript-eslint/ban-types
   entity: Function,
 ) => Inject(getRepositoryToken(entity));

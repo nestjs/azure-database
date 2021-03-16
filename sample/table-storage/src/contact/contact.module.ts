@@ -5,7 +5,9 @@ import { ContactService } from './contact.service';
 import { Contact } from './contact.entity';
 
 @Module({
-  imports: [AzureTableStorageModule.forFeature(Contact)],
+  imports: [AzureTableStorageModule.forFeature(Contact, {
+    table: 'newtable',
+    createTableIfNotExists: true })],
   providers: [ContactService],
   controllers: [ContactController],
 })

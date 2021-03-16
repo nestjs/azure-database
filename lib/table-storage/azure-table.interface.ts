@@ -11,15 +11,15 @@ export interface AzureTableStorageFeatureOptions {
   createTableIfNotExists?: boolean;
 }
 
-// tslint:disable-next-line: no-empty-interface
+// eslint-disable-next-line @typescript-eslint/no-empty-interface
 export interface AzureTableStorageResponse extends azure.ServiceResponse {}
 
-// tslint:disable-next-line: no-empty-interface
 // export interface AzureTableStorageQuery extends azure.TableQuery {}
 export type AzureTableStorageQuery = azure.TableQuery;
-// tslint:disable-next-line: no-empty-interface
+// eslint-disable-next-line @typescript-eslint/no-empty-interface
 export interface AzureTableContinuationToken extends azure.TableService.TableContinuationToken {}
 
+// eslint-disable-next-line @typescript-eslint/no-empty-interface
 export interface AzureTableStorageResultList<T> extends azure.TableService.QueryEntitiesResult<T> {}
 
 export interface Repository<T> {
@@ -28,6 +28,7 @@ export interface Repository<T> {
   where(condition: string, ...args: any[]): Repository<T> & AzureTableStorageQuery;
   and(condition: string, ...args: any[]): Repository<T> & AzureTableStorageQuery;
   or(condition: string, ...args: any[]): Repository<T> & AzureTableStorageQuery;
+  // eslint-disable-next-line @typescript-eslint/ban-types
   toQueryObject(): Object;
 
   findAll(

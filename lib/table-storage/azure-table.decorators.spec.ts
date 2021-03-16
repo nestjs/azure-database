@@ -13,12 +13,10 @@ import {
 
 describe('Azure Table Storage Decorators', () => {
   beforeEach(() => {
-    // tslint:disable-next-line: no-empty
     function MockEntity() {}
   });
 
   describe('@InjectRepository()', () => {
-    // tslint:disable-next-line: no-empty
     function MockEntity() {}
     const value = InjectRepository(MockEntity);
 
@@ -32,7 +30,6 @@ describe('Azure Table Storage Decorators', () => {
       }).toThrow();
     });
     it('should not throw when invoked', () => {
-      // tslint:disable-next-line: no-empty
       function MockClass() {}
       expect(() => {
         value(MockClass, null);
@@ -119,7 +116,6 @@ describe('Azure Table Storage Decorators', () => {
 function testDecorator(name: string, fn: Function, edmType: string, tsType: string) {
   describe(`@${name}()`, () => {
     it(`should throw if property type is NOT ${edmType}`, () => {
-      // tslint:disable-next-line: no-empty
 
       expect(() => {
         class MockClass {

@@ -15,7 +15,6 @@ const logger = new Logger(`AzureStorageRepository`);
 
 @Injectable()
 export class AzureTableStorageRepository<T> implements Repository<T> {
-  // tslint:disable-next-line: variable-name
   private _query: AzureTableStorageQuery = null;
   private get query(): AzureTableStorageQuery {
     // first call we return this.manager.queryInstance
@@ -50,6 +49,7 @@ export class AzureTableStorageRepository<T> implements Repository<T> {
     this.query = this.query.or(condition, ...args);
     return this;
   }
+  // eslint-disable-next-line @typescript-eslint/ban-types
   toQueryObject(): Object {
     return this.query.toQueryObject();
   }
@@ -108,7 +108,6 @@ export class AzureTableStorageRepository<T> implements Repository<T> {
     logger.debug(`Inserting Entity in ${this.tableName}:`);
 
     entity = AzureEntityMapper.createEntity<T>(entity, rowKeyValue);
-    // tslint:disable-next-line: no-console
     console.table(entity);
 
     const result = await this.manager.insertEntity<T>(this.tableName, entity);
@@ -126,7 +125,6 @@ export class AzureTableStorageRepository<T> implements Repository<T> {
     const result = await this.manager.replaceEntity(this.tableName, entity);
 
     logger.debug(`Entity updated successfuly`);
-    // tslint:disable-next-line: no-console
     console.table(entity);
     return AzureEntityMapper.serialize<T>(result);
   }
