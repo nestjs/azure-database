@@ -1,4 +1,4 @@
-import { ContainerDefinition, IndexKind, DataType, Database } from '@azure/cosmos';
+import { ContainerDefinition, Database, DataType, IndexKind } from '@azure/cosmos';
 import { AZURE_COSMOS_DB_ENTITY } from './cosmos-db.decorators';
 import { getConnectionToken, getModelToken, pluralize } from './cosmos-db.utils';
 
@@ -46,7 +46,7 @@ export function createAzureCosmosDbProviders(
         if (entityDescriptor.hasOwnProperty(key)) {
           const element = entityDescriptor[key];
           if (element === 'UniqueKey') {
-            containerOptions.uniqueKeyPolicy.uniqueKeys.push({ paths: [`/${element}`] });
+            containerOptions.uniqueKeyPolicy.uniqueKeys.push({ paths: [`/${key}`] });
           }
         }
       }
