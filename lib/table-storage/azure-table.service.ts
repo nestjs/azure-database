@@ -260,20 +260,16 @@ export class AzureTableStorageService implements azure.TableService {
       });
     });
   }
-
-  mergeEntity<T>(
-    table: string,
-    entityDescriptor: T,
-    options: azure.common.RequestOptions,
-    callback: azure.ErrorOrResult<azure.TableService.EntityMetadata>,
-  ): void;
-  mergeEntity<T>(
-    table: string,
-    entityDescriptor: T,
-    callback: azure.ErrorOrResult<azure.TableService.EntityMetadata>,
-  ): void;
-  mergeEntity(table: any, entityDescriptor: any, options: any, callback?: any) {
-    throw new Error('Method not implemented.');
+  mergeEntity<T>(table: string, entityDescriptor: T, options?: any): Promise<azure.TableService.EntityMetadata> {
+    return new Promise((resolve, reject) => {
+      this.tableServiceInstance.mergeEntity<T>(table, entityDescriptor, options, (error, result) => {
+        if (error) {
+          this.printError(error);
+          reject(error);
+        }
+        resolve(result);
+      });
+    });
   }
   insertOrMergeEntity<T>(
     table: string,
