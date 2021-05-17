@@ -45,7 +45,7 @@
     "@types/node": "11.15.54",
     "@typescript-eslint/eslint-plugin": "4.24.0",
     "@typescript-eslint/parser": "4.24.0",
-    "dotenv": "^8.1.0",
+    "dotenv": "^9.0.0",
     "eslint": "7.26.0",
     "eslint-config-prettier": "8.3.0",
     "eslint-plugin-import": "2.23.2",
