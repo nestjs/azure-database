@@ -6,6 +6,7 @@ const SHOW_ERROR_STACKTRACE = true;
 
 @Injectable()
 export class AzureTableStorageService implements azure.TableService {
+  host: azure.StorageHost;
   defaultPayloadFormat: string;
   private tableService: azure.TableService;
   get tableServiceInstance() {
