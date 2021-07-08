@@ -27,20 +27,20 @@
     "publish:next": "npm publish --access public --tag next"
   },
   "peerDependencies": {
-    "@nestjs/common": "^7.6.17",
-    "@nestjs/core": "^7.6.17"
+    "@nestjs/common": "^8.0.0",
+    "@nestjs/core": "^8.0.0"
   },
   "dependencies": {
     "@azure/cosmos": "^3.11.3",
     "@azure/ms-rest-js": "^2.5.0",
-    "@nestjs/common": "^7.6.17",
-    "@nestjs/core": "^7.6.17",
+    "@nestjs/common": "^8.0.0",
+    "@nestjs/core": "^8.0.0",
     "azure-storage": "^2.10.4"
   },
   "devDependencies": {
     "@commitlint/cli": "12.1.4",
     "@commitlint/config-angular": "12.1.4",
-    "@nestjs/testing": "7.6.18",
+    "@nestjs/testing": "8.0.0",
     "@types/jest": "26.0.24",
     "@types/node": "14.17.5",
     "@typescript-eslint/eslint-plugin": "4.28.2",
