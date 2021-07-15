@@ -37,13 +37,13 @@ Learn how to get started with [Azure table storage for NestJS](https://trilon.io
 For Table Storage
 
 1. Create a Storage account and resource ([read more](http://bit.ly/nest_new-azure-storage-account))
-1. For [Table Storage](http://bit.ly/nest_azure-storage-table), In the [Azure Portal](https://portal.azure.com), go to **Dashboard > Storage > _your-storage-account_**.
+1. For [Table Storage](http://bit.ly/nest_azure-storage-table), In the [Azure Portal](https://portal.azure.com), go to **Storage Accounts > _your-storage-account_**.
 1. Note down the "Storage account name" and "Connection string" obtained at **Access keys** under **Settings** tab.
 
 For Cosmos DB
 
 1. Create a Cosmos DB account and resource ([read more](https://azure.microsoft.com/en-us/services/cosmos-db/))
-1. For [Cosmos DB](http://bit.ly/nest_azure-storage-table), In the [Azure Portal](https://portal.azure.com), go to **Dashboard > Azure Cosmos DB > _your-cosmos-db-account_**.
+1. For [Cosmos DB](http://bit.ly/nest_azure-storage-table), In the [Azure Portal](https://portal.azure.com), go to **Azure Cosmos DB > _your-cosmos-db-account_**.
 1. Note down the "URI" and "Primary Key" obtained at **Keys** under **Settings** tab.
 
 ## Installation
