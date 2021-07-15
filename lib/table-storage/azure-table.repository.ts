@@ -123,7 +123,7 @@ export class AzureTableStorageRepository<T> implements Repository<T> {
 
     entity = AzureEntityMapper.createEntity<T>(entity, rowKey);
 
-    const result = await this.manager.replaceEntity(this.tableName, entity);
+    const result = await this.manager.mergeEntity(this.tableName, entity);
 
     logger.debug(`Entity updated successfuly`);
     // tslint:disable-next-line: no-console
