@@ -1,12 +1,14 @@
 import { Module } from '@nestjs/common';
-import { AzureTableStorageModule } from '@nestjs/azure-database';
-import { ContactController } from './contact.controller';
 import { ContactService } from './contact.service';
-import { Contact } from './contact.entity';
+import { ContactController } from './contact.controller';
+import { AzureTableStorageModule } from '@nestjs/azure-database';
+import { Contact } from './entities/contact.entity';
 
 @Module({
-  imports: [AzureTableStorageModule.forFeature(Contact)],
-  providers: [ContactService],
+  imports: [
+    AzureTableStorageModule.forFeature(Contact),
+  ],
   controllers: [ContactController],
+  providers: [ContactService]
 })
 export class ContactModule {}

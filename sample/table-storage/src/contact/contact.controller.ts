@@ -10,8 +10,8 @@ import {
   Put,
   UnprocessableEntityException,
 } from '@nestjs/common';
-import { ContactDTO } from './contact.dto';
-import { Contact } from './contact.entity';
+import { CreateContactDto } from './dto/create-contact.dto';
+import { Contact } from './entities/contact.entity';
 import { ContactService } from './contact.service';
 
 @Controller()
@@ -36,7 +36,7 @@ export class ContactController {
   @Post()
   async createCat(
     @Body()
-    catData: ContactDTO,
+    catData: CreateContactDto,
   ) {
     try {
       const contact = new Contact();
@@ -50,7 +50,7 @@ export class ContactController {
   }
 
   @Put(':rowKey')
-  async saveCat(@Param('rowKey') rowKey, @Body() catData: ContactDTO) {
+  async saveCat(@Param('rowKey') rowKey, @Body() catData: CreateContactDto) {
     try {
       const contact = new Contact();
       // Disclaimer: Assign only the properties you are expecting!
@@ -65,7 +65,7 @@ export class ContactController {
   @Patch(':rowKey')
   async updateCatDetails(
     @Param('rowKey') rowKey,
-    @Body() catData: Partial<ContactDTO>,
+    @Body() catData: Partial<CreateContactDto>,
   ) {
     try {
       const contact = new Contact();
