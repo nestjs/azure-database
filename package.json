@@ -27,37 +27,37 @@
     "publish:next": "npm publish --access public --tag next"
   },
   "peerDependencies": {
-    "@nestjs/common": "^7.0.0 || ^8.0.0",
-    "@nestjs/core": "^7.0.0 || ^8.0.0"
+    "@nestjs/common": "^7.0.0 || ^8.0.0 || ^9.0.0",
+    "@nestjs/core": "^7.0.0 || ^8.0.0 ||^9.0.0"
   },
   "dependencies": {
-    "@azure/cosmos": "^3.11.3",
-    "@azure/ms-rest-js": "^2.5.0",
+    "@azure/cosmos": "^3.16.2",
+    "@azure/ms-rest-js": "^2.6.1",
     "@nestjs/common": "^8.0.0",
     "@nestjs/core": "^8.0.0",
-    "azure-storage": "^2.10.4"
+    "azure-storage": "^2.10.7"
   },
   "devDependencies": {
-    "@commitlint/cli": "16.2.3",
-    "@commitlint/config-angular": "16.2.3",
-    "@nestjs/testing": "8.4.1",
-    "@types/jest": "27.4.1",
-    "@types/node": "16.11.26",
-    "@typescript-eslint/eslint-plugin": "5.15.0",
-    "@typescript-eslint/parser": "5.15.0",
-    "dotenv": "10.0.0",
-    "eslint": "8.11.0",
+    "@commitlint/cli": "17.0.3",
+    "@commitlint/config-angular": "17.0.3",
+    "@nestjs/testing": "9.0.1",
+    "@types/jest": "28.1.4",
+    "@types/node": "18.0.3",
+    "@typescript-eslint/eslint-plugin": "5.30.5",
+    "@typescript-eslint/parser": "5.30.5",
+    "dotenv": "16.0.1",
+    "eslint": "8.19.0",
     "eslint-config-prettier": "8.5.0",
-    "eslint-plugin-import": "2.25.4",
-    "husky": "7.0.4",
-    "jest": "27.5.1",
-    "lint-staged": "12.3.5",
-    "prettier": "2.5.1",
+    "eslint-plugin-import": "2.26.0",
+    "husky": "8.0.1",
+    "jest": "28.1.2",
+    "lint-staged": "13.0.3",
+    "prettier": "2.7.1",
     "reflect-metadata": "0.1.13",
     "rimraf": "3.0.2",
-    "supertest": "6.2.2",
-    "ts-jest": "27.1.3",
-    "typescript": "4.6.2"
+    "supertest": "6.2.4",
+    "ts-jest": "28.0.5",
+    "typescript": "4.7.4"
   },
   "lint-staged": {
     "*.ts": [
