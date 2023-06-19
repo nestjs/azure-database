@@ -38,8 +38,8 @@
     "azure-storage": "^2.10.7"
   },
   "devDependencies": {
-    "@commitlint/cli": "17.2.0",
-    "@commitlint/config-angular": "17.2.0",
+    "@commitlint/cli": "17.6.5",
+    "@commitlint/config-angular": "17.6.5",
     "@nestjs/testing": "9.1.6",
     "@types/jest": "29.2.2",
     "@types/node": "18.11.9",
