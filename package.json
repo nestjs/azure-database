@@ -34,7 +34,7 @@
     "@azure/cosmos": "^3.16.2",
     "@azure/ms-rest-js": "^2.6.1",
     "@nestjs/common": "^8.0.0",
-    "@nestjs/core": "^8.0.0",
+    "@nestjs/core": "^9.0.5",
     "azure-storage": "^2.10.7"
   },
   "devDependencies": {
