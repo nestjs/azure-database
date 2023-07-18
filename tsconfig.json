@@ -7,11 +7,11 @@
     "noLib": false,
     "emitDecoratorMetadata": true,
     "experimentalDecorators": true,
-    "target": "es6",
+    "target": "ES2021",
     "sourceMap": true,
     "outDir": "./dist",
     "skipLibCheck": true
   },
   "include": ["lib/**/*"],
-  "exclude": ["node_modules", "**/*.spec.ts"]
+  "exclude": ["node_modules", "tests", "samples"]
 }

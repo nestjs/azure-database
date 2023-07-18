@@ -381,11 +381,11 @@ export class AzureTableStorageService implements azure.TableService {
     return this.tableServiceInstance.getMaxListeners();
   }
   // tslint:disable-next-line: ban-types
-  listeners(event: string | symbol): Function[] {
+  listeners(event: string | symbol) {
     return this.tableServiceInstance.listeners(event);
   }
   // tslint:disable-next-line: ban-types
-  rawListeners(event: string | symbol): Function[] {
+  rawListeners(event: string | symbol) {
     return this.tableServiceInstance.rawListeners(event);
   }
   emit(event: string | symbol, ...args: any[]): boolean {

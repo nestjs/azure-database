@@ -50,7 +50,7 @@ export class AzureTableStorageRepository<T> implements Repository<T> {
     this.query = this.query.or(condition, ...args);
     return this;
   }
-  toQueryObject(): Object {
+  toQueryObject(): object {
     return this.query.toQueryObject();
   }
 

@@ -1,7 +1,7 @@
 import { CosmosClient } from '@azure/cosmos';
 import { DynamicModule, Global, Inject, Module, Provider, Type } from '@nestjs/common';
 import { ModuleRef } from '@nestjs/core';
-import { defer } from 'rxjs';
+import { defer, lastValueFrom } from 'rxjs';
 import { COSMOS_DB_CONNECTION_NAME, COSMOS_DB_MODULE_OPTIONS } from './cosmos-db.constants';
 import {
   AzureCosmosDbModuleAsyncOptions,
@@ -9,14 +9,12 @@ import {
   AzureCosmosDbOptionsFactory,
 } from './cosmos-db.interface';
 import { getConnectionToken, handleRetry } from './cosmos-db.utils';
+import { inspect } from 'util';
 
 @Global()
 @Module({})
 export class AzureCosmosDbCoreModule {
-  constructor(
-    @Inject(COSMOS_DB_CONNECTION_NAME) private readonly connectionName: string,
-    private readonly moduleRef: ModuleRef,
-  ) {}
+  constructor() {}
 
   static forRoot(options: AzureCosmosDbOptions): DynamicModule {
     const { dbName, retryAttempts, retryDelay, connectionName, ...cosmosDbOptions } = options;

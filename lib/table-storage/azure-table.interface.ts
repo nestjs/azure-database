@@ -40,7 +40,7 @@ export interface Repository<T> {
   where(condition: string, ...args: any[]): Repository<T> & AzureTableStorageQuery;
   and(condition: string, ...args: any[]): Repository<T> & AzureTableStorageQuery;
   or(condition: string, ...args: any[]): Repository<T> & AzureTableStorageQuery;
-  toQueryObject(): Object;
+  toQueryObject(): object;
 
   findAll(
     tableQuery?: AzureTableStorageQuery,

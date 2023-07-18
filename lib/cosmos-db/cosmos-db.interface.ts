@@ -30,16 +30,16 @@ interface GeoJsonObject {
 }
 
 export class Point implements GeoJsonObject {
-  type: 'Point' = 'Point';
+  type: 'Point' = 'Point' as const;
   coordinates: Position;
 }
 
 export class LineString implements GeoJsonObject {
-  type: 'LineStrings' = 'LineStrings';
+  type: 'LineStrings' = 'LineStrings' as const;
   coordinates: Position[];
 }
 
 export class Polygon implements GeoJsonObject {
-  type: 'Polygon' = 'Polygon';
+  type: 'Polygon' = 'Polygon' as const;
   coordinates: Position[][];
 }

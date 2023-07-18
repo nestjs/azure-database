@@ -4,6 +4,8 @@ import { ValueType } from './azure-table.interface';
 
 export const AZURE_TABLE_ENTITY = 'azure-table-storage:entity';
 
+type EntityFn = () => void;
+
 type AnnotationPropertyType =
   | 'PartitionKey'
   | 'RowKey'
@@ -19,7 +21,7 @@ type AnnotationPropertyType =
 function validateType(edmType: AnnotationPropertyType, target: object /* Function */, propertyKey?: string) {
   if (propertyKey) {
     // tslint:disable-next-line: ban-types
-    const propertyType = Reflect.getMetadata('design:type', target, propertyKey) as Function;
+    const propertyType = Reflect.getMetadata('design:type', target, propertyKey) as () => void;
 
     let edmTypeName = '';
     if (edmType === 'Edm.Int32' || edmType === 'Edm.Int64' || edmType === 'Edm.Double') {
@@ -160,7 +162,4 @@ export function EntityDateTime(value?: string) {
   return annotate(value, 'Edm.DateTime');
 }
 
-export const InjectRepository = (
-  // tslint:disable-next-line: ban-types
-  entity: Function,
-) => Inject(getRepositoryToken(entity));
+export const InjectRepository = (entity: EntityFn) => Inject(getRepositoryToken(entity));

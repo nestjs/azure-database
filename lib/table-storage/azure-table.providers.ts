@@ -3,13 +3,13 @@ import { AZURE_TABLE_STORAGE_NAME } from './azure-table.constant';
 import { AzureTableStorageRepository } from './azure-table.repository';
 import { AzureTableStorageService } from './azure-table.service';
 
-// tslint:disable-next-line: ban-types
-export function createRepositoryProviders(entity: Function): Provider[] {
+type EntityFn = () => void;
+
+export function createRepositoryProviders(entity: EntityFn): Provider[] {
   return [getRepositoryProvider(entity)];
 }
 
-// tslint:disable-next-line: ban-types
-export function getRepositoryProvider(entity: Function): Provider {
+export function getRepositoryProvider(entity: EntityFn): Provider {
   const provide = getRepositoryToken(entity);
   const o = {
     provide,
@@ -21,6 +21,6 @@ export function getRepositoryProvider(entity: Function): Provider {
   return o;
 }
 // tslint:disable-next-line: ban-types
-export function getRepositoryToken(entity: Function) {
+export function getRepositoryToken(entity: EntityFn) {
   return `${entity.name}AzureTableStorageRepository`;
 }

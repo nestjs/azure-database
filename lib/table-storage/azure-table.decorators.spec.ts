@@ -11,6 +11,8 @@ import {
   EntityDateTime,
 } from './azure-table.decorators';
 
+type DecoratorFn = () => (target: object, propertyKey?: string | undefined) => void;
+
 describe('Azure Table Storage Decorators', () => {
   beforeEach(() => {
     // tslint:disable-next-line: no-empty
@@ -55,7 +57,7 @@ describe('Azure Table Storage Decorators', () => {
     });
 
     it('should add a PartitionKey based on Fn', () => {
-      @EntityPartitionKey((d) => d.id + d.name)
+      @EntityPartitionKey(d => d.id + d.name)
       class MockClass {
         id = '1';
         name = '2';
@@ -111,12 +113,12 @@ describe('Azure Table Storage Decorators', () => {
       fn: EntityDateTime,
       tsType: 'Date',
     },
-  ].map((decorator) => {
+  ].map(decorator => {
     testDecorator(decorator.fn.name, decorator.fn, decorator.fn.name.replace('Entity', ''), decorator.tsType);
   });
 });
 
-function testDecorator(name: string, fn: Function, edmType: string, tsType: string) {
+function testDecorator(name: string, fn: DecoratorFn, edmType: string, tsType: string) {
   describe(`@${name}()`, () => {
     it(`should throw if property type is NOT ${edmType}`, () => {
       // tslint:disable-next-line: no-empty

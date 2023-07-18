@@ -13,6 +13,8 @@ import { AzureTableStorageService } from './azure-table.service';
 const PROVIDERS = [AzureTableStorageService, AzureTableStorageRepository];
 const EXPORTS = [...PROVIDERS];
 
+type EntityFn = () => void;
+
 @Module({})
 export class AzureTableStorageModule {
   static forRoot(options?: AzureTableStorageOptions): DynamicModule {
@@ -78,7 +80,7 @@ export class AzureTableStorageModule {
 
   static forFeature(
     // tslint:disable-next-line: ban-types
-    entity: Function,
+    entity: EntityFn,
     { table, createTableIfNotExists }: AzureTableStorageFeatureOptions = {
       // use either the given table name or the entity name
       table: entity.name,

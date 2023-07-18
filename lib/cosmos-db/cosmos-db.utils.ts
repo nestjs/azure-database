@@ -14,7 +14,7 @@ export function getConnectionToken(name?: string) {
 export function handleRetry(retryAttempts = 9, retryDelay = 3000): <T>(source: Observable<T>) => Observable<T> {
   return <T>(source: Observable<T>) =>
     source.pipe(
-      retryWhen((e) =>
+      retryWhen(e =>
         e.pipe(
           scan((errorCount, error) => {
             Logger.error(
@@ -112,7 +112,7 @@ export function pluralize(str: string) {
   str = str.toLowerCase();
   // tslint:disable-next-line: no-bitwise
   if (!~uncountables.indexOf(str)) {
-    found = rules.filter((rule) => {
+    found = rules.filter(rule => {
       return str.match(rule[0]);
     });
     if (found[0]) {
