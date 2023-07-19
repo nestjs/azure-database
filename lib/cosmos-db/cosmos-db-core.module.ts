@@ -1,7 +1,7 @@
 import { CosmosClient } from '@azure/cosmos';
 import { DynamicModule, Global, Module, Provider, Type } from '@nestjs/common';
 import { defer } from 'rxjs';
-import { COSMOS_DB_CONNECTION_NAME, COSMOS_DB_MODULE_OPTIONS } from './cosmos-db.constants';
+import { COSMOS_DB_MODULE_OPTIONS } from './cosmos-db.constants';
 import {
   AzureCosmosDbModuleAsyncOptions,
   AzureCosmosDbOptions,
@@ -12,17 +12,10 @@ import { getConnectionToken, handleRetry } from './cosmos-db.utils';
 @Global()
 @Module({})
 export class AzureCosmosDbCoreModule {
-  constructor() {}
-
   static forRoot(options: AzureCosmosDbOptions): DynamicModule {
     const { dbName, retryAttempts, retryDelay, connectionName, ...cosmosDbOptions } = options;
 
     const cosmosConnectionName = getConnectionToken(connectionName);
-
-    const cosmosConnectionNameProvider = {
-      provide: COSMOS_DB_CONNECTION_NAME,
-      useValue: cosmosConnectionName,
-    };
 
     const connectionProvider = {
       provide: cosmosConnectionName,
@@ -35,23 +28,20 @@ export class AzureCosmosDbCoreModule {
           return dbResponse.database;
         })
           .pipe(handleRetry(retryAttempts, retryDelay))
+
+          // TODO: migrate from .toPromise().
           .toPromise(),
     };
 
     return {
       module: AzureCosmosDbCoreModule,
-      providers: [connectionProvider, cosmosConnectionNameProvider],
+      providers: [connectionProvider],
       exports: [connectionProvider],
     };
   }
 
   static forRootAsync(options: AzureCosmosDbModuleAsyncOptions): DynamicModule {
     const cosmosConnectionName = getConnectionToken(options.connectionName);
-
-    const cosmosConnectionNameProvider = {
-      provide: COSMOS_DB_CONNECTION_NAME,
-      useValue: cosmosConnectionName,
-    };
 
     const connectionProvider = {
       provide: cosmosConnectionName,
@@ -66,6 +56,8 @@ export class AzureCosmosDbCoreModule {
           return dbResponse.database;
         })
           .pipe(handleRetry(retryAttempts, retryDelay))
+
+          // TODO: migrate from .toPromise().
           .toPromise();
       },
       inject: [COSMOS_DB_MODULE_OPTIONS],
@@ -74,7 +66,7 @@ export class AzureCosmosDbCoreModule {
     return {
       module: AzureCosmosDbCoreModule,
       imports: options.imports,
-      providers: [...asyncProviders, connectionProvider, cosmosConnectionNameProvider],
+      providers: [...asyncProviders, connectionProvider],
       exports: [connectionProvider],
     };
   }

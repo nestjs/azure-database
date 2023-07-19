@@ -14,6 +14,7 @@ export function getConnectionToken(name?: string) {
 export function handleRetry(retryAttempts = 9, retryDelay = 3000): <T>(source: Observable<T>) => Observable<T> {
   return <T>(source: Observable<T>) =>
     source.pipe(
+      // TODO: migrate from retryWhen().
       retryWhen(e =>
         e.pipe(
           scan((errorCount, error) => {
