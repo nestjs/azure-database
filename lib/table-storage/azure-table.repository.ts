@@ -1,142 +1,94 @@
+import { DeleteTableEntityResponse } from '@azure/data-tables';
 import { Inject, Injectable, Logger } from '@nestjs/common';
-import { AZURE_TABLE_STORAGE_NAME } from './azure-table.constant';
-import {
-  AzureTableContinuationToken,
-  AzureTableStorageQuery,
-  AzureTableStorageResponse,
-  AzureTableStorageResultList,
-  Repository,
-} from './azure-table.interface';
+import { AZURE_TABLE_STORAGE_FEATURE_OPTIONS, AZURE_TABLE_STORAGE_NAME } from './azure-table.constant';
+import { AzureTableStorageFeatureOptions } from './azure-table.interface';
 import { AzureEntityMapper } from './azure-table.mapper';
 import { AzureTableStorageService } from './azure-table.service';
-import azure = require('azure-storage');
 
 const logger = new Logger(`AzureStorageRepository`);
 
+type PartitionRowKeyValuePair = {
+  partitionKey: string;
+  rowKey: string;
+};
+
 @Injectable()
-export class AzureTableStorageRepository<T> implements Repository<T> {
-  // tslint:disable-next-line: variable-name
-  private _query: AzureTableStorageQuery = null;
-  private get query(): AzureTableStorageQuery {
-    // first call we return this.manager.queryInstance
-    // next calls we return this._query
-    return this._query || this.manager.queryInstance;
-  }
-  private set query(value: AzureTableStorageQuery | null) {
-    this._query = value;
-  }
+export class AzureTableStorageRepository<T> {
   constructor(
     private readonly manager: AzureTableStorageService,
     @Inject(AZURE_TABLE_STORAGE_NAME) private readonly tableName: string,
+    @Inject(AZURE_TABLE_STORAGE_FEATURE_OPTIONS) private readonly options: AzureTableStorageFeatureOptions,
   ) {}
 
-  select(...args: any[]): Repository<T> {
-    this.query = this.query.select(args);
-    return this;
-  }
-  top(top: number): Repository<T> {
-    this.query = this.query.top(top);
-    return this;
-  }
-  where(condition: string, ...args: any[]): Repository<T> {
-    this.query = this.query.where(condition, ...args);
-    return this;
-  }
-  and(condition: string, ...args: any[]): Repository<T> {
-    this.query = this.query.and(condition, ...args);
-    return this;
-  }
-  or(condition: string, ...args: any[]): Repository<T> {
-    this.query = this.query.or(condition, ...args);
-    return this;
-  }
-  toQueryObject(): object {
-    return this.query.toQueryObject();
+  get tableServiceClientInstance() {
+    return this.manager.tableServiceClientInstance;
   }
 
-  async findAll(
-    tableQuery?: AzureTableStorageQuery,
-    currentToken?: AzureTableContinuationToken,
-  ): Promise<AzureTableStorageResultList<T>> {
-    // get the query locally if any
-    tableQuery = tableQuery || this.query;
-
-    const result = await this.manager.queryEntities<azure.TableService.EntityMetadata>(
-      this.tableName,
-      tableQuery,
-      currentToken,
-    );
-    const numberOfEntities = (result.entries || []).length;
-
-    if (numberOfEntities <= 0) {
-      logger.debug(`No Entities found in table ${this.tableName} ${this.query && 'for query'}`);
-    } else {
-      if (numberOfEntities === 1) {
-        logger.debug(`Found 1 Entity in table ${this.tableName} ${this.query && 'for query'}`);
-      } else {
-        logger.debug(`Found ${numberOfEntities} Entities in table ${this.tableName} ${this.query && 'for query'}`);
-      }
-    }
-
-    if (this.query) {
-      console.table(this.toQueryObject());
-      // reset local query
-      this.query = null;
-    }
-
-    return {
-      ...result,
-      entries: AzureEntityMapper.serializeAll<T>(result.entries),
-    };
+  get tableClientInstance() {
+    return this.manager.tableClientInstance;
   }
-  async find(rowKey: string, entity: Partial<T>): Promise<T> {
-    logger.debug(`Looking for Entity RowKey=${rowKey} in ${this.tableName}`);
 
-    const partitionKey = AzureEntityMapper.createEntity(entity, rowKey).PartitionKey._;
-    const result = await this.manager.retrieveEntity<azure.TableService.EntityMetadata>(
-      this.tableName,
-      partitionKey,
-      rowKey,
-    );
+  async createTableIfNotExists(tableName?: string) {
+    logger.debug(`Create Table if not exists: ${tableName}`);
+    await this.tableServiceClientInstance.createTable(tableName);
+  }
 
-    console.table(result, ['(index)', '$', '_']);
+  async find(entity: Partial<T>): Promise<T> {
+    logger.debug(`Looking for Entity in ${this.tableName}`);
+
+    const { partitionKey, rowKey } = AzureEntityMapper.createEntity(entity);
+    const result = await this.manager.tableClientInstance.getEntity(partitionKey.value, rowKey.value);
+
+    console.table(result, ['(index)', 'value', 'type']);
     const mappedEntity = AzureEntityMapper.serialize<T>(result);
     return Object.entries(mappedEntity).length === 0 ? null : mappedEntity;
   }
 
-  async create(entity: T, rowKeyValue?: string): Promise<T> {
+  async create(entity: T): Promise<T> {
+    if (this.options.createTableIfNotExists) {
+      await this.createTableIfNotExists(this.tableName);
+    }
+
+    logger.debug(`Creating Entity in ${this.tableName}:`);
+    logger.debug({ entity });
+
+    entity = AzureEntityMapper.createEntity<T>(entity);
+
+    try {
+      const result = await this.manager.tableClientInstance.createEntity(entity as PartitionRowKeyValuePair);
+      logger.debug(`Entity stored successfully`);
+      return AzureEntityMapper.serialize<T>(result);
+    } catch (error) {
+
+      // TODO: figure out how to parse odata errors
+      // logger.error(`Error creating entity: ${error}`);
+      // const err = JSON.parse(error.message);
+
+      // if (err['odata.error'].code === 'TableNotFound') {
+      //   logger.debug(`Table ${this.tableName} Not Found. Is it created?`);
+      //   return null;
+      // }
+
+      throw error;
+    }
+  }
+
+  async update(entity: T): Promise<T> {
     logger.debug(`Inserting Entity in ${this.tableName}:`);
 
-    entity = AzureEntityMapper.createEntity<T>(entity, rowKeyValue);
-    // tslint:disable-next-line: no-console
-    console.table(entity);
+    entity = AzureEntityMapper.createEntity(entity);
+    const result = await this.manager.tableClientInstance.updateEntity(entity as PartitionRowKeyValuePair, 'Replace');
 
-    const result = await this.manager.insertEntity<T>(this.tableName, entity);
-
-    logger.debug(`Entity stored successfuly`);
-    console.table(result, ['(index)', '$', '_']);
+    logger.debug(`Entity updated successfully`);
     return AzureEntityMapper.serialize<T>(result);
   }
 
-  async update(rowKey: string, entity: Partial<T>): Promise<T> {
-    logger.debug(`Inserting Entity in ${this.tableName}:`);
+  async delete(entity: T): Promise<DeleteTableEntityResponse> {
+    const { partitionKey, rowKey } = AzureEntityMapper.createEntity(entity);
+    const result = await this.manager.tableClientInstance.deleteEntity(partitionKey.value, rowKey.value);
 
-    entity = AzureEntityMapper.createEntity<T>(entity, rowKey);
-
-    const result = await this.manager.replaceEntity(this.tableName, entity);
-
-    logger.debug(`Entity updated successfuly`);
-    // tslint:disable-next-line: no-console
-    console.table(entity);
-    return AzureEntityMapper.serialize<T>(result);
-  }
-
-  async delete(rowKey: string, entity: T): Promise<AzureTableStorageResponse> {
-    entity = AzureEntityMapper.createEntity<T>(entity, rowKey);
-    const result = await this.manager.deleteEntity<T>(this.tableName, entity);
-
-    logger.debug(`Deleted Entity RowKey=${rowKey} in ${this.tableName} (${result.isSuccessful})`);
-    console.table(result, ['(index)', '$', '_']);
+    logger.debug(`Deleted Entity RowKey=${rowKey} in ${this.tableName}`);
+    console.table(result, ['(index)', 'value', 'type']);
     return result;
   }
 }

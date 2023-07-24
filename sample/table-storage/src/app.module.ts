@@ -1,13 +1,7 @@
 import { Module } from '@nestjs/common';
-import { AzureTableStorageModule } from '@nestjs/azure-database';
-import { ContactModule } from './contact/contact.module';
+import { EventModule } from './event/event.module';
 
 @Module({
-  imports: [
-    ContactModule,
-    AzureTableStorageModule.forRoot({
-      connectionString: process.env.AZURE_STORAGE_CONNECTION_STRING,
-    }),
-  ],
+  imports: [EventModule],
 })
 export class AppModule {}
