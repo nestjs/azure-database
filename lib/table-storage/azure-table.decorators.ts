@@ -51,6 +51,7 @@ function validateType(edmType: AnnotationPropertyType, target: object /* Functio
   }
 }
 
+// NOTE: Class annotation (partitionKey or rowKey) have been deprecated.
 function annotate(value: ValueType | undefined, type: AnnotationPropertyType) {
   return (target: object /* Function */, propertyKey?: string | undefined) => {
     // check if the property type matches the annotated type
@@ -77,40 +78,11 @@ function annotate(value: ValueType | undefined, type: AnnotationPropertyType) {
 
     // Note: if propertyKey is truthy, we are then annotating a class property declaration
     if (isPropertyAnnotation) {
-      /*
-      merge previous entity descriptor and new descriptor:
-      the new descriptor is a mapping of:
-      - the annotated $propertyKey
-      - and the required $type
-      - we also assign any given $value (undefined otherwise)
-      */
-
       entityDescriptor = {
         [propertyKey]: { value, type },
         ...entityDescriptor,
       };
     } else {
-      //
-      /**
-       * Class annotation.
-       *
-       * we need to check for special $type: PartitionKey and RowKey
-       * if detected, we create a new entry in the descriptor with:
-       * - the $type as the propertyKey name (PartitionKey or RowKey)
-       * - the value (_) of the newly added property key is the annotated propertyKey
-       *
-       * Example:
-       *   @PartitionKey('ContactID')
-       *   @EntityRowKey('ContactName')
-       *   export class ContactEntity {}
-       *
-       * Would result into the following descriptor:
-       *   { PartitionKey: { _: 'ContactID', '$': 'Edm.String' }, RowKey: { _: 'ContactName', '$': 'Edm.String' } }
-       *
-       * Note:
-       *  Make sure the type of PartitionKey and RowKey property keys is Edm.String
-       */
-
       const isPartitionKey = type === 'partitionKey';
       const isRowKey = type === 'rowKey';
       if (isPartitionKey || isRowKey) {
