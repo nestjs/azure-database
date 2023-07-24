@@ -3,7 +3,6 @@ import {
   EntityPartitionKey,
   EntityRowKey,
   EntityString,
-  Point,
 } from '@nestjs/azure-database';
 
 @EntityPartitionKey('id')
@@ -13,5 +12,4 @@ export class Event {
   @EntityString() name: string;
   @EntityString() type: string;
   @EntityDateTime() createdAt: Date;
-  location: Point;
 }

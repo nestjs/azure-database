@@ -29,7 +29,7 @@ export class AzureTableStorageRepository<T> {
   }
 
   async createTableIfNotExists(tableName?: string) {
-    logger.debug(`Create Table if not exists: ${tableName}`);
+    logger.debug(`Create Table ${tableName} (if not exists)`);
     await this.tableServiceClientInstance.createTable(tableName);
   }
 
@@ -44,30 +44,26 @@ export class AzureTableStorageRepository<T> {
     return Object.entries(mappedEntity).length === 0 ? null : mappedEntity;
   }
 
-  async create(entity: T): Promise<T> {
+  async create(entity: T): Promise<T | null> {
     if (this.options.createTableIfNotExists) {
       await this.createTableIfNotExists(this.tableName);
     }
 
     logger.debug(`Creating Entity in ${this.tableName}:`);
-    logger.debug({ entity });
 
-    entity = AzureEntityMapper.createEntity<T>(entity);
+    // entity = AzureEntityMapper.createEntity<T>(entity);
 
     try {
+      logger.debug({entity});
+
       const result = await this.manager.tableClientInstance.createEntity(entity as PartitionRowKeyValuePair);
       logger.debug(`Entity stored successfully`);
       return AzureEntityMapper.serialize<T>(result);
     } catch (error) {
-
       // TODO: figure out how to parse odata errors
-      // logger.error(`Error creating entity: ${error}`);
-      // const err = JSON.parse(error.message);
-
-      // if (err['odata.error'].code === 'TableNotFound') {
-      //   logger.debug(`Table ${this.tableName} Not Found. Is it created?`);
-      //   return null;
-      // }
+      if (error.message.startsWith('{')) {
+        return this.handleRestErrors(error);
+      }
 
       throw error;
     }
@@ -90,5 +86,21 @@ export class AzureTableStorageRepository<T> {
     logger.debug(`Deleted Entity RowKey=${rowKey} in ${this.tableName}`);
     console.table(result, ['(index)', 'value', 'type']);
     return result;
+  }
+
+  private handleRestErrors(error: Error) {
+    const err = JSON.parse(error.message);
+
+    if (err['odata.error'].code === 'TableNotFound') {
+      logger.error(`Error creating entity. Table ${this.tableName} Not Found. Is it created?`);
+    } else if (err['odata.error'].code === 'InvalidInput') {
+      logger.error(`Error creating entity:`);
+      err['odata.error'].message.value.split('\n').forEach((line: string) => {
+        logger.error(line);
+      });
+    } else {
+      logger.error(`Error creating entity: ${error}`);
+    }
+    return null;
   }
 }

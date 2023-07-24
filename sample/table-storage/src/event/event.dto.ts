@@ -5,5 +5,4 @@ export class EventDTO {
   name: string;
   type: string;
   createdAt: Date;
-  location: Point;
 }

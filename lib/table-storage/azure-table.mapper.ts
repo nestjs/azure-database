@@ -47,14 +47,7 @@ export class AzureEntityMapper {
       ...entityDescriptor,
     };
 
-    logger.debug(`Mapping Entity from DTO:`);
-    console.log({
-      partialDto,
-      entityDescriptor,
-    });
-
     for (const key in partialDto) {
-      console.log({ key });
       if (entityDescriptor[key]) {
         entity[key] = { value: partialDto[key], type: entityDescriptor[key].type };
       }

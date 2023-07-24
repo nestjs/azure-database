@@ -6,7 +6,7 @@ import { EventService } from './event.service';
 @Module({
   imports: [
     AzureTableStorageModule.forFeature(Event, {
-      createTableIfNotExists: false,
+      createTableIfNotExists: true,
     }),
   ],
   providers: [EventService],

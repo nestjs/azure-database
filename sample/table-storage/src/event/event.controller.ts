@@ -1,6 +1,8 @@
 import {
   Body,
   Controller,
+  HttpException,
+  HttpStatus,
   Post,
   UnprocessableEntityException,
 } from '@nestjs/common';
@@ -20,7 +22,6 @@ export class EventController {
 
       return await this.events.create(event);
     } catch (error) {
-      console.error(error);
       throw new UnprocessableEntityException(error);
     }
   }
