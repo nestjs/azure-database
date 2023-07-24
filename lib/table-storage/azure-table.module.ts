@@ -55,6 +55,10 @@ export class AzureTableStorageModule {
           provide: AZURE_TABLE_STORAGE_NAME,
           useValue: '',
         },
+        {
+          provide: AZURE_TABLE_STORAGE_FEATURE_OPTIONS,
+          useValue: {},
+        },
         ...PROVIDERS,
         ...this.createAsyncProviders(options),
       ],

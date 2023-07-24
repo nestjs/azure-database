@@ -5,14 +5,8 @@ import { AZURE_TABLE_ENTITY } from './azure-table.decorators';
 const logger = new Logger(`AzureEntityMapper`);
 
 export interface PartitionRowKeyValues {
-  partitionKey: {
-    value: string;
-    type: string;
-  };
-  rowKey: {
-    value: string;
-    type: string;
-  };
+  partitionKey: string;
+  rowKey: string;
 }
 
 export class AzureEntityMapper {
@@ -25,8 +19,8 @@ export class AzureEntityMapper {
     const result = {} as E;
 
     for (const key in entryDescriptor) {
-      if (key !== '.metadata') {
-        result[key] = entryDescriptor[key].value;
+      if (key !== 'odata.metadata' && key !== 'etag') {
+        result[key] = entryDescriptor[key];
       }
     }
 
@@ -49,17 +43,13 @@ export class AzureEntityMapper {
 
     for (const key in partialDto) {
       if (entityDescriptor[key]) {
-        entity[key] = { value: partialDto[key], type: entityDescriptor[key].type };
+        entity[key] = partialDto[key];
       }
     }
 
-    if (!entity.rowKey.value) {
-      entity.rowKey.value = randomUUID() as string;
+    if (!entity.rowKey) {
+      entity.rowKey = randomUUID() as string;
     }
-
-    logger.debug(`Mapped Entity from DTO:`);
-    logger.debug(`- PartitionKey=${entity.partitionKey.value}`);
-    logger.debug(`- RowKey=${entity.rowKey.value}`);
 
     return entity as D & PartitionRowKeyValues;
   }

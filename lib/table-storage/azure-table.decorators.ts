@@ -116,7 +116,7 @@ function annotate(value: ValueType | undefined, type: AnnotationPropertyType) {
       if (isPartitionKey || isRowKey) {
         entityDescriptor = {
           ...entityDescriptor,
-          [type]: { value: value || propertyKey, type: 'String' },
+          [type]: value,
         };
       }
     }
@@ -125,10 +125,12 @@ function annotate(value: ValueType | undefined, type: AnnotationPropertyType) {
   };
 }
 
+/** @deprecated */
 export function EntityPartitionKey(value: ValueType) {
   return annotate(value, 'partitionKey');
 }
 
+/** @deprecated */
 export function EntityRowKey(value: ValueType) {
   return annotate(value, 'rowKey');
 }

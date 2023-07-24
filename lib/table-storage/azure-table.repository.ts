@@ -1,4 +1,4 @@
-import { DeleteTableEntityResponse } from '@azure/data-tables';
+import { DeleteTableEntityResponse, TableEntity } from '@azure/data-tables';
 import { Inject, Injectable, Logger } from '@nestjs/common';
 import { AZURE_TABLE_STORAGE_FEATURE_OPTIONS, AZURE_TABLE_STORAGE_NAME } from './azure-table.constant';
 import { AzureTableStorageFeatureOptions } from './azure-table.interface';
@@ -28,79 +28,128 @@ export class AzureTableStorageRepository<T> {
     return this.manager.tableClientInstance;
   }
 
-  async createTableIfNotExists(tableName?: string) {
-    logger.debug(`Create Table ${tableName} (if not exists)`);
-    await this.tableServiceClientInstance.createTable(tableName);
+  async createTableIfNotExists(tableName?: string): Promise<boolean | null> {
+    logger.debug(`Create table: ${tableName} (if not exists)`);
+
+    try {
+      await this.tableServiceClientInstance.createTable(tableName);
+      return true;
+    } catch (error) {
+      return this.handleRestErrors(error);
+    }
   }
 
-  async find(entity: Partial<T>): Promise<T> {
-    logger.debug(`Looking for Entity in ${this.tableName}`);
+  async find(partitionKey: string, rowKey: string): Promise<T> {
+    logger.debug(`Looking for entity in table: ${this.tableName}`);
+    logger.debug(`- partitionKey: ${partitionKey}`);
+    logger.debug(`- rowKey: ${rowKey}`);
 
-    const { partitionKey, rowKey } = AzureEntityMapper.createEntity(entity);
-    const result = await this.manager.tableClientInstance.getEntity(partitionKey.value, rowKey.value);
+    try {
+      const result = await this.manager.tableClientInstance.getEntity(partitionKey, rowKey);
+      const mappedEntity = AzureEntityMapper.serialize<T>(result);
 
-    console.table(result, ['(index)', 'value', 'type']);
-    const mappedEntity = AzureEntityMapper.serialize<T>(result);
-    return Object.entries(mappedEntity).length === 0 ? null : mappedEntity;
+      if (Object.entries(mappedEntity).length === 0) {
+        logger.debug(`Failed to fetch entity`);
+        return null;
+      }
+
+      logger.debug(`Entity fetched successfully`);
+      return mappedEntity;
+    } catch (error) {
+      return this.handleRestErrors(error);
+    }
   }
 
   async create(entity: T): Promise<T | null> {
     if (this.options.createTableIfNotExists) {
-      await this.createTableIfNotExists(this.tableName);
+      const res = await this.createTableIfNotExists(this.tableName);
+      if (res === null) {
+        return null;
+      }	
     }
 
-    logger.debug(`Creating Entity in ${this.tableName}:`);
-
-    // entity = AzureEntityMapper.createEntity<T>(entity);
+    logger.debug(`Creating entity in table: ${this.tableName}`);
+    logger.debug(`- partitionKey: ${(entity as TableEntity).partitionKey}`);
+    logger.debug(`- rowKey: ${(entity as TableEntity).rowKey}`);
 
     try {
-      logger.debug({entity});
-
       const result = await this.manager.tableClientInstance.createEntity(entity as PartitionRowKeyValuePair);
-      logger.debug(`Entity stored successfully`);
+      logger.debug(`Entity created successfully`);
       return AzureEntityMapper.serialize<T>(result);
     } catch (error) {
-      // TODO: figure out how to parse odata errors
-      if (error.message.startsWith('{')) {
-        return this.handleRestErrors(error);
-      }
-
-      throw error;
+      return this.handleRestErrors(error);
     }
   }
 
-  async update(entity: T): Promise<T> {
-    logger.debug(`Inserting Entity in ${this.tableName}:`);
+  async update(partitionKey: string, rowKey: string, entity: T): Promise<T> {
+    logger.debug(`Updating entity in table: ${this.tableName}`);
+    logger.debug(`- partitionKey: ${partitionKey}`);
+    logger.debug(`- rowKey: ${rowKey}`);
 
-    entity = AzureEntityMapper.createEntity(entity);
-    const result = await this.manager.tableClientInstance.updateEntity(entity as PartitionRowKeyValuePair, 'Replace');
+    if (!entity.hasOwnProperty('rowKey')) {
+      entity['rowKey'] = rowKey;
+    }
 
-    logger.debug(`Entity updated successfully`);
-    return AzureEntityMapper.serialize<T>(result);
+    if (!entity.hasOwnProperty('partitionKey')) {
+      entity['partitionKey'] = partitionKey;
+    }
+
+    try {
+      const result = await this.manager.tableClientInstance.updateEntity(entity as PartitionRowKeyValuePair);
+
+      logger.debug(`Entity updated successfully`);
+      return AzureEntityMapper.serialize<T>(result);
+    } catch (error) {
+      return this.handleRestErrors(error);
+    }
   }
 
-  async delete(entity: T): Promise<DeleteTableEntityResponse> {
-    const { partitionKey, rowKey } = AzureEntityMapper.createEntity(entity);
-    const result = await this.manager.tableClientInstance.deleteEntity(partitionKey.value, rowKey.value);
+  async delete(partitionKey: string, rowKey: string): Promise<DeleteTableEntityResponse> {
+    logger.debug(`Deleting entity in table: ${this.tableName}`);
+    logger.debug(`- partitionKey: ${partitionKey}`);
+    logger.debug(`- rowKey: ${rowKey}`);
 
-    logger.debug(`Deleted Entity RowKey=${rowKey} in ${this.tableName}`);
-    console.table(result, ['(index)', 'value', 'type']);
+    const result = await this.manager.tableClientInstance.deleteEntity(partitionKey, rowKey);
+
+    logger.debug(`Entity deleted successfully`);
     return result;
   }
 
   private handleRestErrors(error: Error) {
+    // TODO: figure out how to parse odata errors
+    if (!error.message.startsWith('{')) {
+      throw new Error(error.message);
+    }
+
     const err = JSON.parse(error.message);
 
-    if (err['odata.error'].code === 'TableNotFound') {
-      logger.error(`Error creating entity. Table ${this.tableName} Not Found. Is it created?`);
-    } else if (err['odata.error'].code === 'InvalidInput') {
-      logger.error(`Error creating entity:`);
-      err['odata.error'].message.value.split('\n').forEach((line: string) => {
-        logger.error(line);
-      });
-    } else {
-      logger.error(`Error creating entity: ${error}`);
+    switch (err['odata.error'].code) {
+      case 'TableAlreadyExists':
+        logger.error(`Error creating table. Table ${this.tableName} already exists.`);
+        break;
+      case 'TableNotFound':
+        logger.error(`Error creating entity. Table ${this.tableName} Not Found. Is it created?`);
+        break;
+      case 'ResourceNotFound':
+        logger.error(`Error processing entity. Entity not found.`);
+        break;
+      case 'InvalidInput':
+        logger.error(`Error creating entity:`);
+        err['odata.error'].message.value.split('\n').forEach((line: string) => {
+          logger.error(line);
+        });
+        break;
+      case 'TableBeingDeleted':
+        logger.error(`Error creating entity. Table ${this.tableName} is being deleted. Try again later.`);
+        break;
+      case 'EntityAlreadyExists':
+        logger.error(`Error creating entity. Entity with the same partitionKey and rowKey already exists.`);
+        break;
+      default:
+        logger.error(error);
+        break;
     }
+
     return null;
   }
 }
