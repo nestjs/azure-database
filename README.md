@@ -26,7 +26,7 @@
 
 ## Description
 
-Azure Database ([Table Storage](http://bit.ly/nest_azure-storage-table), [Cosmos DB](https://azure.microsoft.com/en-us/services/cosmos-db/) and more) module for [Nest](https://github.com/nestjs/nest) framework (node.js)
+Azure Database ([Table Storage](http://bit.ly/nest_azure-storage-table), [Cosmos DB - NoSQL](https://azure.microsoft.com/en-us/services/cosmos-db/)) module for [Nest](https://github.com/nestjs/nest) framework (node.js)
 
 ## Disclaimer
 
@@ -36,15 +36,13 @@ You are reading documentation for version 3. If you are looking for version 2 do
 
 For Table Storage
 
-1. Create a Storage account and resource ([read more](http://bit.ly/nest_new-azure-storage-account))
-1. For [Table Storage](http://bit.ly/nest_azure-storage-table), In the [Azure Portal](https://portal.azure.com), go to **Dashboard > Storage > _your-storage-account_**.
-1. Note down the "Storage account name" and "Connection string" obtained at **Access keys** under **Settings** tab.
+1. Create a Storage account and resource ([read more](https://learn.microsoft.com/azure/storage/tables/table-storage-quickstart-portal))
+2. Note down the "Connection string" - You will need it later
 
-For Cosmos DB
+For Cosmos DB (NoSQL ONLY)
 
-1. Create a Cosmos DB account and resource ([read more](https://azure.microsoft.com/en-us/services/cosmos-db/))
-1. For [Cosmos DB](http://bit.ly/nest_azure-storage-table), In the [Azure Portal](https://portal.azure.com), go to **Dashboard > Azure Cosmos DB > _your-cosmos-db-account_**.
-1. Note down the "URI" and "Primary Key" obtained at **Keys** under **Settings** tab.
+1. Create a Cosmos DB account and resource ([read more](https://learn.microsoft.com/azure/cosmos-db/nosql/quickstart-portal))
+2. Note down the "URI", Database name and the "Primary Key" (or "Secondary Key") - You will need them later
 
 ## Installation
 
@@ -168,7 +166,7 @@ The `AzureTableStorageRepository` provides a list of public methods for managing
 
 ##### CREATE
 
-`async create(entity: T): Promise<T | null>`: creates a new entity.
+`create(entity: T): Promise<T | null>`: creates a new entity.
 
 ```typescript
   async create(event: Event): Promise<Event> {
@@ -178,7 +176,7 @@ The `AzureTableStorageRepository` provides a list of public methods for managing
 
 ##### READ
 
-`async find(partitionKey: string, rowKey: string): Promise<T>`: finds one entity using its `partitionKey` and `rowKey`.
+`find(partitionKey: string, rowKey: string): Promise<T>`: finds one entity using its `partitionKey` and `rowKey`.
 
 ```typescript
   async find(partitionKey: string, rowKey: string): Promise<Event> {
@@ -186,7 +184,7 @@ The `AzureTableStorageRepository` provides a list of public methods for managing
   }
 ```
 
-`async findAll(): Promise<T[]>`: finds all entities (NOTE: odata filters are not supported yet).
+`findAll(): Promise<T[]>`: finds all entities (NOTE: odata filters are not supported yet).
 
 ```typescript
   async findAll(): Promise<Event[]> {
@@ -196,7 +194,7 @@ The `AzureTableStorageRepository` provides a list of public methods for managing
 
 ##### UPDATE
 
-`async update(partitionKey: string, rowKey: string, entity: T): Promise<T>`: Updates an entity using a "merge" strategy.
+`update(partitionKey: string, rowKey: string, entity: T): Promise<T>`: Updates an entity using a "merge" strategy.
 
 ```typescript
   async update(
@@ -210,7 +208,7 @@ The `AzureTableStorageRepository` provides a list of public methods for managing
 
 ##### DELETE
 
-`async delete(partitionKey: string, rowKey: string): Promise<DeleteTableEntityResponse>`: Removes an entity from the table.
+`delete(partitionKey: string, rowKey: string): Promise<DeleteTableEntityResponse>`: Removes an entity from the table.
 
 ```typescript
   async delete(partitionKey: string, rowKey: string): Promise<void> {
