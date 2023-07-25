@@ -28,9 +28,9 @@
 
 Azure Database ([Table Storage](http://bit.ly/nest_azure-storage-table), [Cosmos DB](https://azure.microsoft.com/en-us/services/cosmos-db/) and more) module for [Nest](https://github.com/nestjs/nest) framework (node.js)
 
-## Tutorial
+## Disclaimer
 
-Learn how to get started with [Azure table storage for NestJS](https://trilon.io/blog/nestjs-nosql-azure-table-storage)
+You are reading documentation for version 3. If you are looking for version 2 documentation, [click here](https://github.com/nestjs/azure-database/tree/legacy-v2). Please also note that version 2 is no longer maintained and will not receive any updates!
 
 ## Before Installation
 
@@ -64,7 +64,7 @@ AZURE_STORAGE_CONNECTION_STRING=
 
 2. **IMPORTANT: Make sure to add your `.env` file to your .gitignore! The `.env` file MUST NOT be versioned on Git.**
 
-3. Make sure to include the following call to your main file:
+3. Make sure to include the following call to your `main.ts` file:
 
 ```typescript
 if (process.env.NODE_ENV !== 'production') require('dotenv').config();
@@ -72,98 +72,70 @@ if (process.env.NODE_ENV !== 'production') require('dotenv').config();
 
 > This line must be added before any other imports!
 
+4. The `AzureTableStorageModule` will automatically read the `AZURE_STORAGE_CONNECTION_STRING` environment variable and use it to connect to your Azure Storage account.
+
 ### Example
+
+Check out the Table Storage example project included in the [sample folder](https://github.com/nestjs/azure-database/tree/master/sample/table-storage)
 
 #### Prepare your entity
 
 0. Create a new feature module, eg. with the nest CLI:
 
 ```shell
-$ nest generate module contact
+$ nest generate module event
 ```
 
-1. Create a Data Transfer Object (DTO) inside a file named `contact.dto.ts`:
+1. Create a Data Transfer Object (DTO) inside a file named `event.dto.ts`:
 
 ```typescript
-export class ContactDTO {
+export class EventDTO {
   name: string;
-  message: string;
+  type: string;
 }
 ```
 
-2. Create a file called `contact.entity.ts` and describe the entity model using the provided decorators:
-
-- `@EntityPartitionKey(value: string)`: Represents the `PartitionKey` of the entity (**required**).
-
-- `@EntityRowKey(value: string)`: Represents the `RowKey` of the entity (**required**).
-
-- `@EntityInt32(value?: string)`: For signed 32-bit integer values.
-
-- `@EntityInt64(value?: string)`: For signed 64-bit integer values.
-
-- `@EntityBinary(value?: string)`: For binary (blob) data.
-
-- `@EntityBoolean(value?: string)`: For `true` or `false` values.
-
-- `@EntityString(value?: string)`: For character data.
-
-- `@EntityDouble(value?: string)`: For floating point numbers with 15 digit precision.
-
-- `@EntityDateTime(value?: string)`: For time of day.
-
-For instance, the shape of the following entity:
+2. Create a file called `event.entity.ts` and describe the entity model using plain JavaScript objects. **The only requirement is to provide a `partitionKey` and a `rowKey` properties.** For instance, the shape of the following entity:
 
 ```typescript
-import { EntityPartitionKey, EntityRowKey, EntityString } from '@nestjs/azure-database';
-
-@EntityPartitionKey('ContactID')
-@EntityRowKey('ContactName')
-export class Contact {
-  @EntityString() name: string;
-  @EntityString() message: string;
+export class Event {
+  partitionKey: string; // required
+  rowKey: string; // required
+  name: string;
+  type: string;
 }
 ```
 
-Will be automatically converted to:
-
-```json
-{
-  "PartitionKey": { "_": "ContactID", "$": "Edm.String" },
-  "RowKey": { "_": "ContactName", "$": "Edm.String" },
-  "name": { "_": undefined, "$": "Edm.String" },
-  "message": { "_": undefined, "$": "Edm.String" }
-}
-```
-
-> Note: The provided entity type annotations represent the [Entity Data Model][edm-types] types.
-
-3. Import the `AzureTableStorageModule` inside your Nest feature module `contact.module.ts`:
+1. Import the `AzureTableStorageModule` inside your Nest feature module `event.module.ts`:
 
 ```typescript
 import { Module } from '@nestjs/common';
 import { AzureTableStorageModule } from '@nestjs/azure-database';
-import { ContactController } from './contact.controller';
-import { ContactService } from './contact.service';
-import { Contact } from './contact.entity';
 
 @Module({
-  imports: [AzureTableStorageModule.forFeature(Contact)],
-  providers: [ContactService],
-  controllers: [ContactController],
+  imports: [AzureTableStorageModule.forFeature(Event)],
 })
-export class ContactModule {}
+export class EventModule {}
 ```
 
 You can optionally pass in the following arguments:
 
 ```typescript
-AzureTableStorageModule.forFeature(Contact, {
-  table: 'AnotherTableName',
-  createTableIfNotExists: true,
-});
+import { Module } from '@nestjs/common';
+import { AzureTableStorageModule } from '@nestjs/azure-database';
+
+@Module({
+  imports: [
+    AzureTableStorageModule.forFeature(Event, {
+      table: 'foobar',
+      createTableIfNotExists: true,
+    }),
+  ],
+})
+export class EventModule {}
 ```
 
-- `table: string`: The name of the table. If not provided, the name of the `Contact` entity will be used as a table name
+- `table: string`: The name of the table. If not provided, the name of the `Event` entity will be used as a table name
 - `createTableIfNotExists: boolean`: Whether to automatically create the table if it doesn't exists or not:
   - If `true` the table will be created during the startup of the app.
   - If `false` the table will not be created. **You will have to create the table by yourself before querying it!**
@@ -173,115 +145,76 @@ AzureTableStorageModule.forFeature(Contact, {
 0. Create a service that will abstract the CRUD operations:
 
 ```shell
-$ nest generate service contact
+$ nest generate service event
 ```
 
-1. Use the `@InjectRepository(Contact)` to get an instance of the Azure `Repository` for the entity definition created earlier:
+1. Use the `@InjectRepository(Event)` to get an instance of the Azure `Repository` for the entity definition created earlier:
 
 ```typescript
+import { InjectRepository, Repository } from '@nestjs/azure-database';
 import { Injectable } from '@nestjs/common';
-import { Repository, InjectRepository } from '@nestjs/azure-database';
-import { Contact } from './contact.entity';
+import { Event } from './event.entity';
 
 @Injectable()
-export class ContactService {
+export class EventService {
   constructor(
-    @InjectRepository(Contact)
-    private readonly contactRepository: Repository<Contact>,
+    @InjectRepository(Event)
+    private readonly eventRepository: Repository<Event>,
   ) {}
 }
 ```
 
-The `AzureTableStorageRepository` provides a couple of public APIs and Interfaces for managing various CRUD operations:
+The `AzureTableStorageRepository` provides a list of public methods for managing various CRUD operations:
 
 ##### CREATE
 
-`create(entity: T, rowKeyValue?: string): Promise<T>`: creates a new entity.
+`async create(entity: T): Promise<T | null>`: creates a new entity.
 
 ```typescript
-
-  @Post()
-  async create(contact: Contact, rowKeyValue: string): Promise<Contact> {
-    //if rowKeyValue is null, rowKeyValue will generate a UUID
-    return this.contactRepository.create(contact, rowKeyValue)
+  async create(event: Event): Promise<Event> {
+    return await this.eventRepository.create(event);
   }
 ```
 
 ##### READ
 
-`find(rowKey: string, entity: Partial<T>): Promise<T>`: finds one entity using its `RowKey`.
+`async find(partitionKey: string, rowKey: string): Promise<T>`: finds one entity using its `partitionKey` and `rowKey`.
 
 ```typescript
-  @Get(':rowKey')
-  async getContact(@Param('rowKey') rowKey) {
-    try {
-      return await this.contactRepository.find(rowKey, new Contact());
-    } catch (error) {
-      // Entity not found
-      throw new UnprocessableEntityException(error);
-    }
+  async find(partitionKey: string, rowKey: string): Promise<Event> {
+    return await this.eventRepository.find(partitionKey, rowKey);
   }
 ```
 
-`findAll(tableQuery?: azure.TableQuery, currentToken?: azure.TableService.TableContinuationToken): Promise<AzureTableStorageResultList<T>>`: finds all entities that match the given query (return all entities if no query provided).
+`async findAll(): Promise<T[]>`: finds all entities (NOTE: odata filters are not supported yet).
 
 ```typescript
-  @Get()
-  async getAllContacts() {
-    return await this.contactRepository.findAll();
+  async findAll(): Promise<Event[]> {
+    return await this.eventRepository.findAll();
   }
 ```
 
 ##### UPDATE
 
-`update(rowKey: string, entity: Partial<T>): Promise<T>`: Updates an entity. It does a partial update.
+`async update(partitionKey: string, rowKey: string, entity: T): Promise<T>`: Updates an entity using a "merge" strategy.
 
 ```typescript
-  @Put(':rowKey')
-  async saveContact(@Param('rowKey') rowKey, @Body() contactData: ContactDTO) {
-    try {
-      const contactEntity = new Contact();
-      // Disclaimer: Assign only the properties you are expecting!
-      Object.assign(contactEntity, contactData);
-
-      return await this.contactRepository.update(rowKey, contactEntity);
-    } catch (error) {
-      throw new UnprocessableEntityException(error);
-    }
-  }
-  @Patch(':rowKey')
-  async updateContactDetails(@Param('rowKey') rowKey, @Body() contactData: Partial<ContactDTO>) {
-    try {
-      const contactEntity = new Contact();
-      // Disclaimer: Assign only the properties you are expecting!
-      Object.assign(contactEntity, contactData);
-
-      return await this.contactRepository.update(rowKey, contactEntity);
-    } catch (error) {
-      throw new UnprocessableEntityException(error);
-    }
+  async update(
+    partitionKey: string,
+    rowKey: string,
+    event: Event,
+  ): Promise<Event> {
+    return await this.eventRepository.update(partitionKey, rowKey, event);
   }
 ```
 
 ##### DELETE
 
-`delete(rowKey: string, entity: T): Promise<AzureTableStorageResponse>`: Removes an entity from the database.
+`async delete(partitionKey: string, rowKey: string): Promise<DeleteTableEntityResponse>`: Removes an entity from the table.
 
 ```typescript
-
-  @Delete(':rowKey')
-  async deleteDelete(@Param('rowKey') rowKey) {
-    try {
-      const response = await this.contactRepository.delete(rowKey, new Contact());
-
-      if (response.statusCode === 204) {
-        return null;
-      } else {
-        throw new UnprocessableEntityException(response);
-      }
-    } catch (error) {
-      throw new UnprocessableEntityException(error);
-    }
+  async delete(partitionKey: string, rowKey: string): Promise<void> {
+    await this.eventRepository.delete(partitionKey, rowKey);
   }
 ```
 
@@ -297,7 +230,7 @@ AZURE_COSMOS_DB_KEY=
 
 2. **IMPORTANT: Make sure to add your `.env` file to your .gitignore! The `.env` file MUST NOT be versioned on Git.**
 
-3. Make sure to include the following call to your main file:
+3. Make sure to include the following call to your `main.ts` file:
 
 ```typescript
 if (process.env.NODE_ENV !== 'production') require('dotenv').config();
@@ -321,10 +254,10 @@ $ nest generate module event
 
 ```typescript
 export class EventDTO {
+  id?: string;
   name: string;
   type: string;
-  date: Date;
-  location: Point;
+  createdAt: Date;
 }
 ```
 
@@ -337,14 +270,13 @@ export class EventDTO {
 For instance, the shape of the following entity:
 
 ```typescript
-import { CosmosPartitionKey, CosmosDateTime, Point } from '@nestjs/azure-database';
+import { CosmosDateTime, CosmosPartitionKey } from '@nestjs/azure-database';
 
 @CosmosPartitionKey('type')
 export class Event {
-  id?: string;
+  name: string;
   type: string;
   @CosmosDateTime() createdAt: Date;
-  location: Point;
 }
 ```
 
@@ -352,22 +284,17 @@ Will be automatically converted to:
 
 ```json
 {
+  "name": "NestJS Meetup",
   "type": "Meetup",
-  "createdAt": "2019-11-15T17:05:25.427Z",
-  "position": {
-    "type": "Point",
-    "coordinates": [2.3522, 48.8566]
-  }
+  "createdAt": "2019-11-15T17:05:25.427Z"
 }
 ```
 
-3. Import the `AzureCosmosDbModule` inside your Nest feature module `event.module.ts`:
+1. Import the `AzureCosmosDbModule` inside your Nest feature module `event.module.ts`:
 
 ```typescript
-import { Module } from '@nestjs/common';
 import { AzureCosmosDbModule } from '@nestjs/azure-database';
-import { EventController } from './event.controller';
-import { EventService } from './event.service';
+import { Module } from '@nestjs/common';
 import { Event } from './event.entity';
 
 @Module({
@@ -376,11 +303,10 @@ import { Event } from './event.entity';
       dbName: process.env.AZURE_COSMOS_DB_NAME,
       endpoint: process.env.AZURE_COSMOS_DB_ENDPOINT,
       key: process.env.AZURE_COSMOS_DB_KEY,
+      retryAttempts: 1,
     }),
     AzureCosmosDbModule.forFeature([{ dto: Event }]),
   ],
-  providers: [EventService],
-  controllers: [EventController],
 })
 export class EventModule {}
 ```
@@ -396,102 +322,94 @@ $ nest generate service event
 1. Use the `@InjectModel(Event)` to get an instance of the Azure Cosmos DB [Container](https://docs.microsoft.com/en-us/javascript/api/@azure/cosmos/container) for the entity definition created earlier:
 
 ```typescript
-import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/azure-database';
+import type { Container } from '@azure/cosmos';
+import { Injectable } from '@nestjs/common';
 import { Event } from './event.entity';
 
 @Injectable()
 export class EventService {
   constructor(
     @InjectModel(Event)
-    private readonly eventContainer,
+    private readonly eventContainer: Container,
   ) {}
 }
 ```
 
-The Azure Cosmos DB `Container` provides a couple of public APIs and Interfaces for managing various CRUD operations:
+`@InjectModel(Event)` will inject an Azure Cosmos DB `Container` instance for the `Event` entity. The `Container` provides a list of public methods for managing the database.
+
+**IMPORTANT: Please note that the `Container` instance is not a NestJS repository. It is the actual instance provided by the official [Azure Cosmos DB SDK](https://github.com/Azure/azure-sdk-for-js/blob/main/sdk/cosmosdb/cosmos/README.md).**
 
 ##### CREATE
 
 `create(entity: T): Promise<T>`: creates a new entity.
 
 ```typescript
-
-  @Post()
-  async create(event: Event): Promise<Event> {
-      return this.eventContainer.items.create(event)
-  }
-
+async create(eventDto: EventDTO): Promise<Event> {
+  const { resource } = await this.eventContainer.items.create<Event>(
+    eventDto,
+  );
+  return resource;
+}
 ```
 
 ##### READ
 
-`query<T>(query: string | SqlQuerySpec, options?: FeedOptions): QueryIterator<T>`: run a SQL Query to find a document.
+`Items.query<T>(query: string | SqlQuerySpec, options?: FeedOptions): QueryIterator<T>`: Queries the database using a SQL query.
+`QueryIterator<Event>.fetchAll(): Promise<FeedResponse<Event>>`: Fetches all the results of the query.
 
 ```typescript
-  @Get(':id')
-  async getContact(@Param('id') id) {
-    try {
-       const querySpec = {
-           query: "SELECT * FROM root r WHERE r.id=@id",
-           parameters: [
-             {
-               name: "@id",
-               value: id
-             }
-           ]
-         };
-        const { resources } = await this.eventContainer.items.query<Event>(querySpec).fetchAll()
-         return resources
-    } catch (error) {
-      // Entity not found
-      throw new UnprocessableEntityException(error);
-    }
-  }
+async getEvents(): Promise<Event[]> {
+  const querySpec = {
+    query: 'SELECT * FROM events',
+  };
+
+  const { resources } = await this.eventContainer.items
+    .query<Event>(querySpec)
+    .fetchAll();
+  return resources;
+}
 ```
 
 ##### UPDATE
 
-`read<T>(options?: RequestOptions): Promise<ItemResponse<T>>`: Get a document.
-`replace<T>(body: T, options?: RequestOptions): Promise<ItemResponse<T>>`: Updates a document.
+`Item.replace<`T` & Resource>(body: `T` & Resource, options?: RequestOptions): Promise<ItemResponse<`T` & Resource>>`: Replaces an item in the database.
 
 ```typescript
-  @Put(':id')
-  async saveEvent(@Param('id') id, @Body() eventData: EventDTO) {
-    try {
-      const { resource: item } = await this.eventContainer.item<Event>(id, 'type').read()
+async updateEvent(
+  id: string,
+  type: string,
+  eventData: EventDTO,
+): Promise<Event> {
+  let { resource: item } = await this.eventContainer
+    .item(id, type)
+    .read<Event>();
 
-      // Disclaimer: Assign only the properties you are expecting!
-      Object.assign(item, eventData);
+  item = {
+    ...item,
+    ...eventData,
+  };
 
-      const { resource: replaced } = await this.eventContainer
-       .item(id, 'type')
-       .replace<Event>(item)
-      return replaced
-    } catch (error) {
-      throw new UnprocessableEntityException(error);
-    }
-  }
+  const { resource: replaced } = await this.eventContainer
+    .item(id, type)
+    .replace(item);
+
+  return replaced;
+}
 ```
 
 ##### DELETE
 
-`delete<T>(options?: RequestOptions): Promise<ItemResponse<T>>`: Removes an entity from the database.
+`Item.delete<T>(options?: RequestOptions): Promise<ItemResponse<T>>`: Deletes an item from the database.
 
 ```typescript
+async deleteEvent(id: string, type: string): Promise<Event> {
+  const { resource: deleted } = await this.eventContainer
+    .item(id, type)
+    .delete<Event>();
 
-  @Delete(':id')
-  async deleteEvent(@Param('id') id) {
-    try {
-      const { resource: deleted } = await this.eventContainer
-       .item(id, 'type')
-       .delete<Event>()
-
-      return deleted;
-    } catch (error) {
-      throw new UnprocessableEntityException(error);
-    }
-  }
+  return deleted;
+}
 ```
 
 ## Support

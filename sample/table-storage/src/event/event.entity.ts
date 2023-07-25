@@ -3,5 +3,4 @@ export class Event {
   rowKey: string;
   name: string;
   type: string;
-  createdAt: Date;
 }

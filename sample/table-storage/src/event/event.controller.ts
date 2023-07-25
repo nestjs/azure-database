@@ -16,11 +16,16 @@ export class EventController {
   constructor(private readonly events: EventService) {}
 
   @Get(':partitionKey/:rowKey')
-  async getContact(
+  async getEvent(
     @Param('partitionKey') partitionKey: string,
     @Param('rowKey') rowKey: string,
   ) {
     return await this.events.find(partitionKey, rowKey);
+  }
+
+  @Get()
+  async getEvents() {
+    return await this.events.findAll();
   }
 
   @Post()

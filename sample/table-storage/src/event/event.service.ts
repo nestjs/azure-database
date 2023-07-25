@@ -13,6 +13,10 @@ export class EventService {
     return await this.eventRepository.find(partitionKey, rowKey);
   }
 
+  async findAll(): Promise<Event[]> {
+    return await this.eventRepository.findAll();
+  }
+
   async create(event: Event): Promise<Event> {
     return await this.eventRepository.create(event);
   }
