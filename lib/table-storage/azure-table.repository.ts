@@ -60,12 +60,33 @@ export class AzureTableStorageRepository<T> {
     }
   }
 
+  async findAll(): Promise<T[]> {
+    logger.debug(`Looking for entities in table: ${this.tableName}`);
+
+    try {
+      const records = this.tableClientInstance.listEntities({
+        // TODO: odata filters on findAll is not supported yet (see: https://github.com/Azure/azure-sdk-for-js/issues/19494)
+        // queryOptions: { filter: odata`${filter}`, select: [] },
+      });
+
+      const entities = [];
+      for await (const entity of records) {
+        entities.push(entity);
+      }
+
+      logger.debug(`Entities fetched successfully`);
+      return entities;
+    } catch (error) {
+      return this.handleRestErrors(error);
+    }
+  }
+
   async create(entity: T): Promise<T | null> {
     if (this.options.createTableIfNotExists) {
       const res = await this.createTableIfNotExists(this.tableName);
       if (res === null) {
         return null;
-      }	
+      }
     }
 
     logger.debug(`Creating entity in table: ${this.tableName}`);

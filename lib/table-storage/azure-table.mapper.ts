@@ -19,7 +19,7 @@ export class AzureEntityMapper {
     const result = {} as E;
 
     for (const key in entryDescriptor) {
-      if (key !== 'odata.metadata' && key !== 'etag') {
+      if (key !== 'odata.metadata') {
         result[key] = entryDescriptor[key];
       }
     }
