@@ -21,17 +21,17 @@
   },
   "dependencies": {
     "@nestjs/azure-database": "file://../../",
-    "@nestjs/common": "^8.0.0",
+    "@nestjs/common": "^10.0.0",
     "@nestjs/core": "^8.0.0",
-    "@nestjs/platform-express": "^8.0.0",
+    "@nestjs/platform-express": "^10.0.0",
     "reflect-metadata": "^0.1.13",
     "rimraf": "^3.0.0",
     "rxjs": "^7.0.0"
   },
   "devDependencies": {
     "@nestjs/cli": "^10.0.0",
-    "@nestjs/schematics": "^9.0.0",
-    "@nestjs/testing": "^8.0.0",
+    "@nestjs/schematics": "^10.0.0",
+    "@nestjs/testing": "^10.0.0",
     "@types/express": "^4.17.3",
     "@types/jest": "^29.0.0",
     "@types/node": "^18.0.0",
