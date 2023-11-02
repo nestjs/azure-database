@@ -2,6 +2,14 @@ import { Logger } from '@nestjs/common';
 import { Observable } from 'rxjs';
 import { delay, retryWhen, scan } from 'rxjs/operators';
 import { DEFAULT_DB_CONNECTION } from './cosmos-db.constants';
+import { readFile } from 'fs/promises';
+import { join } from 'path';
+
+export async function getuserAgentSuffix(): Promise<string> {
+  const data = await readFile(join(__dirname, '..', '..', 'package.json'), 'utf8');
+  const json = await JSON.parse(data);
+  return `node.js/${process.version} (${process.platform}; ${process.arch}) ${json.name}/${json.version}`;
+}
 
 export function getModelToken(model: string) {
   return `${model}AzureCosmosDbModel`;

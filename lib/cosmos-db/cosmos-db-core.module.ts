@@ -7,7 +7,7 @@ import {
   AzureCosmosDbOptions,
   AzureCosmosDbOptionsFactory,
 } from './cosmos-db.interface';
-import { getConnectionToken, handleRetry } from './cosmos-db.utils';
+import { getConnectionToken, getuserAgentSuffix, handleRetry } from './cosmos-db.utils';
 
 @Global()
 @Module({})
@@ -21,6 +21,7 @@ export class AzureCosmosDbCoreModule {
       provide: cosmosConnectionName,
       useFactory: async (): Promise<any> =>
         await defer(async () => {
+          cosmosDbOptions.userAgentSuffix = await getuserAgentSuffix();
           const client = new CosmosClient(cosmosDbOptions);
           const dbResponse = await client.databases.createIfNotExists({
             id: dbName,
@@ -49,6 +50,7 @@ export class AzureCosmosDbCoreModule {
         const { dbName, retryAttempts, retryDelay, connectionName, ...cosmosOptions } = cosmosModuleOptions;
 
         return await defer(async () => {
+          cosmosOptions.userAgentSuffix = await getuserAgentSuffix();
           const client = new CosmosClient(cosmosOptions);
           const dbResponse = await client.databases.createIfNotExists({
             id: dbName,
