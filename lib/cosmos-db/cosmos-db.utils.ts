@@ -2,6 +2,14 @@ import { Logger } from '@nestjs/common';
 import { Observable } from 'rxjs';
 import { delay, retryWhen, scan } from 'rxjs/operators';
 import { DEFAULT_DB_CONNECTION } from './cosmos-db.constants';
+import { readFile } from 'fs/promises';
+import { join } from 'path';
+
+export async function getuserAgentSuffix(): Promise<string> {
+  const data = await readFile(join(__dirname, '..', '..', 'package.json'), 'utf8');
+  const json = await JSON.parse(data);
+  return `node.js/${process.version} (${process.platform}; ${process.arch}) ${json.name}/${json.version}`;
+}
 
 export function getModelToken(model: string) {
   return `${model}AzureCosmosDbModel`;
@@ -14,7 +22,8 @@ export function getConnectionToken(name?: string) {
 export function handleRetry(retryAttempts = 9, retryDelay = 3000): <T>(source: Observable<T>) => Observable<T> {
   return <T>(source: Observable<T>) =>
     source.pipe(
-      retryWhen((e) =>
+      // TODO: migrate from retryWhen().
+      retryWhen(e =>
         e.pipe(
           scan((errorCount, error) => {
             Logger.error(
@@ -112,7 +121,7 @@ export function pluralize(str: string) {
   str = str.toLowerCase();
   // tslint:disable-next-line: no-bitwise
   if (!~uncountables.indexOf(str)) {
-    found = rules.filter((rule) => {
+    found = rules.filter(rule => {
       return str.match(rule[0]);
     });
     if (found[0]) {
