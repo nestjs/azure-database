@@ -1,20 +1,36 @@
-import { DynamicModule, Module, Provider } from '@nestjs/common';
-import { AZURE_TABLE_STORAGE_MODULE_OPTIONS, AZURE_TABLE_STORAGE_NAME } from './azure-table.constant';
+import { DynamicModule, Logger, Module, Provider } from '@nestjs/common';
 import {
-  AzureTableStorageOptions,
+  AZURE_TABLE_STORAGE_FEATURE_OPTIONS,
+  AZURE_TABLE_STORAGE_MODULE_OPTIONS,
+  AZURE_TABLE_STORAGE_NAME,
+} from './azure-table.constant';
+import {
   AzureTableStorageFeatureOptions,
   AzureTableStorageModuleAsyncOptions,
+  AzureTableStorageOptions,
   AzureTableStorageOptionsFactory,
 } from './azure-table.interface';
 import { createRepositoryProviders } from './azure-table.providers';
 import { AzureTableStorageRepository } from './azure-table.repository';
 import { AzureTableStorageService } from './azure-table.service';
 
+const logger = new Logger(`AzureTableStorageModule`);
+
 const PROVIDERS = [AzureTableStorageService, AzureTableStorageRepository];
 const EXPORTS = [...PROVIDERS];
 
+type EntityFn = /* Function */ {
+  name: string;
+};
+
 @Module({})
 export class AzureTableStorageModule {
+  constructor() {
+    if (typeof process.env.AZURE_STORAGE_CONNECTION_STRING === 'undefined') {
+      logger.error(`AZURE_STORAGE_CONNECTION_STRING is not defined in the environment variables`);
+    }
+  }
+
   static forRoot(options?: AzureTableStorageOptions): DynamicModule {
     return {
       module: AzureTableStorageModule,
@@ -38,6 +54,10 @@ export class AzureTableStorageModule {
         {
           provide: AZURE_TABLE_STORAGE_NAME,
           useValue: '',
+        },
+        {
+          provide: AZURE_TABLE_STORAGE_FEATURE_OPTIONS,
+          useValue: {},
         },
         ...PROVIDERS,
         ...this.createAsyncProviders(options),
@@ -77,9 +97,8 @@ export class AzureTableStorageModule {
   }
 
   static forFeature(
-    // tslint:disable-next-line: ban-types
-    entity: Function,
-    { table, createTableIfNotExists }: AzureTableStorageFeatureOptions = {
+    entity: EntityFn,
+    options: AzureTableStorageFeatureOptions = {
       // use either the given table name or the entity name
       table: entity.name,
       createTableIfNotExists: false,
@@ -94,13 +113,11 @@ export class AzureTableStorageModule {
         ...repositoryProviders,
         {
           provide: AZURE_TABLE_STORAGE_NAME,
-          useFactory: async (azureTableStorageService: AzureTableStorageService) => {
-            if (createTableIfNotExists) {
-              table = (await azureTableStorageService.createTableIfNotExists(table)).TableName;
-            }
-            return table;
-          },
-          inject: [AzureTableStorageService],
+          useValue: options.table || entity.name,
+        },
+        {
+          provide: AZURE_TABLE_STORAGE_FEATURE_OPTIONS,
+          useValue: options,
         },
       ],
       exports: [...EXPORTS, ...repositoryProviders],

@@ -8,7 +8,7 @@ type AnnotationPropertyType = 'PartitionKey' | 'DateTime' | 'UniqueKey';
 function validateType(annotationType: AnnotationPropertyType, target: object /* Function */, propertyKey?: string) {
   if (propertyKey) {
     // tslint:disable-next-line: ban-types
-    const propertyType = Reflect.getMetadata('design:type', target, propertyKey) as Function;
+    const propertyType = Reflect.getMetadata('design:type', target, propertyKey) as () => void;
 
     let propertyTypeName = '';
     if (annotationType === 'DateTime') {

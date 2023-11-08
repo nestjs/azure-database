@@ -1,37 +1,27 @@
 import { CosmosClient } from '@azure/cosmos';
-import { DynamicModule, Global, Inject, Module, Provider, Type } from '@nestjs/common';
-import { ModuleRef } from '@nestjs/core';
+import { DynamicModule, Global, Module, Provider, Type } from '@nestjs/common';
 import { defer } from 'rxjs';
-import { COSMOS_DB_CONNECTION_NAME, COSMOS_DB_MODULE_OPTIONS } from './cosmos-db.constants';
+import { COSMOS_DB_MODULE_OPTIONS } from './cosmos-db.constants';
 import {
   AzureCosmosDbModuleAsyncOptions,
   AzureCosmosDbOptions,
   AzureCosmosDbOptionsFactory,
 } from './cosmos-db.interface';
-import { getConnectionToken, handleRetry } from './cosmos-db.utils';
+import { getConnectionToken, getuserAgentSuffix, handleRetry } from './cosmos-db.utils';
 
 @Global()
 @Module({})
 export class AzureCosmosDbCoreModule {
-  constructor(
-    @Inject(COSMOS_DB_CONNECTION_NAME) private readonly connectionName: string,
-    private readonly moduleRef: ModuleRef,
-  ) {}
-
   static forRoot(options: AzureCosmosDbOptions): DynamicModule {
     const { dbName, retryAttempts, retryDelay, connectionName, ...cosmosDbOptions } = options;
 
     const cosmosConnectionName = getConnectionToken(connectionName);
 
-    const cosmosConnectionNameProvider = {
-      provide: COSMOS_DB_CONNECTION_NAME,
-      useValue: cosmosConnectionName,
-    };
-
     const connectionProvider = {
       provide: cosmosConnectionName,
       useFactory: async (): Promise<any> =>
         await defer(async () => {
+          cosmosDbOptions.userAgentSuffix = await getuserAgentSuffix();
           const client = new CosmosClient(cosmosDbOptions);
           const dbResponse = await client.databases.createIfNotExists({
             id: dbName,
@@ -39,12 +29,14 @@ export class AzureCosmosDbCoreModule {
           return dbResponse.database;
         })
           .pipe(handleRetry(retryAttempts, retryDelay))
+
+          // TODO: migrate from .toPromise().
           .toPromise(),
     };
 
     return {
       module: AzureCosmosDbCoreModule,
-      providers: [connectionProvider, cosmosConnectionNameProvider],
+      providers: [connectionProvider],
       exports: [connectionProvider],
     };
   }
@@ -52,17 +44,13 @@ export class AzureCosmosDbCoreModule {
   static forRootAsync(options: AzureCosmosDbModuleAsyncOptions): DynamicModule {
     const cosmosConnectionName = getConnectionToken(options.connectionName);
 
-    const cosmosConnectionNameProvider = {
-      provide: COSMOS_DB_CONNECTION_NAME,
-      useValue: cosmosConnectionName,
-    };
-
     const connectionProvider = {
       provide: cosmosConnectionName,
       useFactory: async (cosmosModuleOptions: AzureCosmosDbOptions): Promise<any> => {
         const { dbName, retryAttempts, retryDelay, connectionName, ...cosmosOptions } = cosmosModuleOptions;
 
         return await defer(async () => {
+          cosmosOptions.userAgentSuffix = await getuserAgentSuffix();
           const client = new CosmosClient(cosmosOptions);
           const dbResponse = await client.databases.createIfNotExists({
             id: dbName,
@@ -70,6 +58,8 @@ export class AzureCosmosDbCoreModule {
           return dbResponse.database;
         })
           .pipe(handleRetry(retryAttempts, retryDelay))
+
+          // TODO: migrate from .toPromise().
           .toPromise();
       },
       inject: [COSMOS_DB_MODULE_OPTIONS],
@@ -78,7 +68,7 @@ export class AzureCosmosDbCoreModule {
     return {
       module: AzureCosmosDbCoreModule,
       imports: options.imports,
-      providers: [...asyncProviders, connectionProvider, cosmosConnectionNameProvider],
+      providers: [...asyncProviders, connectionProvider],
       exports: [connectionProvider],
     };
   }

@@ -5,7 +5,13 @@ import { TableStorageAsyncExistingModule } from '../modules/table-storage-async-
 describe('Table Storage (async existing class)', () => {
   let moduleRef: TestingModule;
 
+  const originalEnv = process.env;
+  afterEach(() => {
+    process.env = originalEnv;
+  });
+
   beforeEach(async () => {
+    process.env.AZURE_STORAGE_CONNECTION_STRING = 'abc';
     moduleRef = await Test.createTestingModule({
       imports: [TableStorageAsyncExistingModule],
     }).compile();
