@@ -42,7 +42,7 @@
     "@commitlint/config-angular": "18.1.0",
     "@nestjs/testing": "10.2.8",
     "@types/jest": "29.5.8",
-    "@types/node": "18.16.19",
+    "@types/node": "20.9.0",
     "@typescript-eslint/eslint-plugin": "6.10.0",
     "@typescript-eslint/parser": "6.10.0",
     "dotenv": "16.3.1",
