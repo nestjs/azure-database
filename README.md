@@ -28,19 +28,19 @@ Azure Database ([Table Storage](http://bit.ly/nest_azure-storage-table), [Cosmos
 
 ## Disclaimer
 
-You are reading documentation for version 3. If you are looking for version 2 documentation, [click here](https://github.com/nestjs/azure-database/tree/legacy-v2). Please also note that version 2 is no longer maintained and will not receive any updates!
+You are reading the documentation for version 3. If you are looking for version 2 documentation, [click here](https://github.com/nestjs/azure-database/tree/legacy-v2). Please also note that version 2 is no longer maintained and will not receive any updates!
 
 ## Before Installation
-
-For Table Storage
-
-1. Create a Storage account and resource ([read more](https://learn.microsoft.com/azure/storage/tables/table-storage-quickstart-portal))
-2. Note down the "Connection string" - You will need it later
 
 For Cosmos DB (NoSQL ONLY)
 
 1. Create a Cosmos DB account and resource ([read more](https://learn.microsoft.com/azure/cosmos-db/nosql/quickstart-portal))
 2. Note down the "URI", Database name and the "Primary Key" (or "Secondary Key") - You will need them later
+
+For Table Storage
+
+1. Create a Storage account and resource ([read more](https://learn.microsoft.com/azure/storage/tables/table-storage-quickstart-portal))
+2. Note down the "Connection string" - You will need it later
 
 ## Installation
 
@@ -49,170 +49,6 @@ $ npm i --save @nestjs/azure-database
 ```
 
 ## Usage
-
-### For Azure Table Storage support
-
-1. Create or update your existing `.env` file with the following content:
-
-```
-AZURE_STORAGE_CONNECTION_STRING=
-```
-
-2. **IMPORTANT: Make sure to add your `.env` file to your .gitignore! The `.env` file MUST NOT be versioned on Git.**
-
-3. Make sure to include the following call to your `main.ts` file:
-
-```typescript
-if (process.env.NODE_ENV !== 'production') require('dotenv').config();
-```
-
-> This line must be added before any other imports!
-
-4. The `AzureTableStorageModule` will automatically read the `AZURE_STORAGE_CONNECTION_STRING` environment variable and use it to connect to your Azure Storage account.
-
-### Example
-
-Check out the Table Storage example project included in the [sample folder](https://github.com/nestjs/azure-database/tree/master/sample/table-storage)
-
-#### Prepare your entity
-
-0. Create a new feature module, eg. with the nest CLI:
-
-```shell
-$ nest generate module event
-```
-
-1. Create a Data Transfer Object (DTO) inside a file named `event.dto.ts`:
-
-```typescript
-export class EventDTO {
-  name: string;
-  type: string;
-}
-```
-
-2. Create a file called `event.entity.ts` and describe the entity model using plain JavaScript objects. **The only requirement is to provide a `partitionKey` and a `rowKey` properties.** For instance, the shape of the following entity:
-
-```typescript
-export class Event {
-  partitionKey: string; // required
-  rowKey: string; // required
-  name: string;
-  type: string;
-}
-```
-
-1. Import the `AzureTableStorageModule` inside your Nest feature module `event.module.ts`:
-
-```typescript
-import { Module } from '@nestjs/common';
-import { AzureTableStorageModule } from '@nestjs/azure-database';
-
-@Module({
-  imports: [AzureTableStorageModule.forFeature(Event)],
-})
-export class EventModule {}
-```
-
-You can optionally pass in the following arguments:
-
-```typescript
-import { Module } from '@nestjs/common';
-import { AzureTableStorageModule } from '@nestjs/azure-database';
-
-@Module({
-  imports: [
-    AzureTableStorageModule.forFeature(Event, {
-      table: 'foobar',
-      createTableIfNotExists: true,
-    }),
-  ],
-})
-export class EventModule {}
-```
-
-- `table: string`: The name of the table. If not provided, the name of the `Event` entity will be used as a table name
-- `createTableIfNotExists: boolean`: Whether to automatically create the table if it doesn't exists or not:
-  - If `true` the table will be created during the startup of the app.
-  - If `false` the table will not be created. **You will have to create the table by yourself before querying it!**
-
-#### CRUD operations
-
-0. Create a service that will abstract the CRUD operations:
-
-```shell
-$ nest generate service event
-```
-
-1. Use the `@InjectRepository(Event)` to get an instance of the Azure `Repository` for the entity definition created earlier:
-
-```typescript
-import { InjectRepository, Repository } from '@nestjs/azure-database';
-import { Injectable } from '@nestjs/common';
-import { Event } from './event.entity';
-
-@Injectable()
-export class EventService {
-  constructor(
-    @InjectRepository(Event)
-    private readonly eventRepository: Repository<Event>,
-  ) {}
-}
-```
-
-The `AzureTableStorageRepository` provides a list of public methods for managing various CRUD operations:
-
-##### CREATE
-
-`create(entity: T): Promise<T | null>`: creates a new entity.
-
-```typescript
-  async create(event: Event): Promise<Event> {
-    return await this.eventRepository.create(event);
-  }
-```
-
-##### READ
-
-`find(partitionKey: string, rowKey: string): Promise<T>`: finds one entity using its `partitionKey` and `rowKey`.
-
-```typescript
-  async find(partitionKey: string, rowKey: string): Promise<Event> {
-    return await this.eventRepository.find(partitionKey, rowKey);
-  }
-```
-
-`findAll(): Promise<T[]>`: finds all entities (NOTE: odata filters are not supported yet).
-
-```typescript
-  async findAll(): Promise<Event[]> {
-    return await this.eventRepository.findAll();
-  }
-```
-
-##### UPDATE
-
-`update(partitionKey: string, rowKey: string, entity: T): Promise<T>`: Updates an entity using a "merge" strategy.
-
-```typescript
-  async update(
-    partitionKey: string,
-    rowKey: string,
-    event: Event,
-  ): Promise<Event> {
-    return await this.eventRepository.update(partitionKey, rowKey, event);
-  }
-```
-
-##### DELETE
-
-`delete(partitionKey: string, rowKey: string): Promise<DeleteTableEntityResponse>`: Removes an entity from the table.
-
-```typescript
-  async delete(partitionKey: string, rowKey: string): Promise<void> {
-    await this.eventRepository.delete(partitionKey, rowKey);
-  }
-```
 
 ### For Azure Cosmos DB support
 
@@ -407,6 +243,171 @@ async deleteEvent(id: string, type: string): Promise<Event> {
   return deleted;
 }
 ```
+
+### For Azure Table Storage support
+
+1. Create or update your existing `.env` file with the following content:
+
+```
+AZURE_STORAGE_CONNECTION_STRING=
+```
+
+2. **IMPORTANT: Make sure to add your `.env` file to your .gitignore! The `.env` file MUST NOT be versioned on Git.**
+
+3. Make sure to include the following call to your `main.ts` file:
+
+```typescript
+if (process.env.NODE_ENV !== 'production') require('dotenv').config();
+```
+
+> This line must be added before any other imports!
+
+4. The `AzureTableStorageModule` will automatically read the `AZURE_STORAGE_CONNECTION_STRING` environment variable and use it to connect to your Azure Storage account.
+
+### Example
+
+Check out the Table Storage example project included in the [sample folder](https://github.com/nestjs/azure-database/tree/master/sample/table-storage)
+
+#### Prepare your entity
+
+0. Create a new feature module, eg. with the nest CLI:
+
+```shell
+$ nest generate module event
+```
+
+1. Create a Data Transfer Object (DTO) inside a file named `event.dto.ts`:
+
+```typescript
+export class EventDTO {
+  name: string;
+  type: string;
+}
+```
+
+2. Create a file called `event.entity.ts` and describe the entity model using plain JavaScript objects. **The only requirement is to provide a `partitionKey` and a `rowKey` properties.** For instance, the shape of the following entity:
+
+```typescript
+export class Event {
+  partitionKey: string; // required
+  rowKey: string; // required
+  name: string;
+  type: string;
+}
+```
+
+1. Import the `AzureTableStorageModule` inside your Nest feature module `event.module.ts`:
+
+```typescript
+import { Module } from '@nestjs/common';
+import { AzureTableStorageModule } from '@nestjs/azure-database';
+
+@Module({
+  imports: [AzureTableStorageModule.forFeature(Event)],
+})
+export class EventModule {}
+```
+
+You can optionally pass in the following arguments:
+
+```typescript
+import { Module } from '@nestjs/common';
+import { AzureTableStorageModule } from '@nestjs/azure-database';
+
+@Module({
+  imports: [
+    AzureTableStorageModule.forFeature(Event, {
+      table: 'foobar',
+      createTableIfNotExists: true,
+    }),
+  ],
+})
+export class EventModule {}
+```
+
+- `table: string`: The name of the table. If not provided, the name of the `Event` entity will be used as a table name
+- `createTableIfNotExists: boolean`: Whether to automatically create the table if it doesn't exists or not:
+  - If `true` the table will be created during the startup of the app.
+  - If `false` the table will not be created. **You will have to create the table by yourself before querying it!**
+
+#### CRUD operations
+
+0. Create a service that will abstract the CRUD operations:
+
+```shell
+$ nest generate service event
+```
+
+1. Use the `@InjectRepository(Event)` to get an instance of the Azure `Repository` for the entity definition created earlier:
+
+```typescript
+import { InjectRepository, Repository } from '@nestjs/azure-database';
+import { Injectable } from '@nestjs/common';
+import { Event } from './event.entity';
+
+@Injectable()
+export class EventService {
+  constructor(
+    @InjectRepository(Event)
+    private readonly eventRepository: Repository<Event>,
+  ) {}
+}
+```
+
+The `AzureTableStorageRepository` provides a list of public methods for managing various CRUD operations:
+
+##### CREATE
+
+`create(entity: T): Promise<T | null>`: creates a new entity.
+
+```typescript
+  async create(event: Event): Promise<Event> {
+    return await this.eventRepository.create(event);
+  }
+```
+
+##### READ
+
+`find(partitionKey: string, rowKey: string): Promise<T>`: finds one entity using its `partitionKey` and `rowKey`.
+
+```typescript
+  async find(partitionKey: string, rowKey: string): Promise<Event> {
+    return await this.eventRepository.find(partitionKey, rowKey);
+  }
+```
+
+`findAll(): Promise<T[]>`: finds all entities (NOTE: odata filters are not supported yet).
+
+```typescript
+  async findAll(): Promise<Event[]> {
+    return await this.eventRepository.findAll();
+  }
+```
+
+##### UPDATE
+
+`update(partitionKey: string, rowKey: string, entity: T): Promise<T>`: Updates an entity using a "merge" strategy.
+
+```typescript
+  async update(
+    partitionKey: string,
+    rowKey: string,
+    event: Event,
+  ): Promise<Event> {
+    return await this.eventRepository.update(partitionKey, rowKey, event);
+  }
+```
+
+##### DELETE
+
+`delete(partitionKey: string, rowKey: string): Promise<DeleteTableEntityResponse>`: Removes an entity from the table.
+
+```typescript
+  async delete(partitionKey: string, rowKey: string): Promise<void> {
+    await this.eventRepository.delete(partitionKey, rowKey);
+  }
+```
+
 
 ## Support
 
