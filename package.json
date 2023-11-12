@@ -38,7 +38,7 @@
     "@nestjs/core": "^9.0.0 || ^10.0.0"
   },
   "devDependencies": {
-    "@commitlint/cli": "18.4.0",
+    "@commitlint/cli": "18.4.1",
     "@commitlint/config-angular": "18.4.0",
     "@nestjs/testing": "10.2.8",
     "@types/jest": "29.5.8",
