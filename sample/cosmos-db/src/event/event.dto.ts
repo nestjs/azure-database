@@ -1,6 +1,8 @@
 export class EventDTO {
   id?: string;
   name: string;
-  type: string;
+  type: {
+    label: string;
+  }
   createdAt: Date;
 }

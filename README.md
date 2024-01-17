@@ -95,19 +95,29 @@ export class EventDTO {
 
 2. Create a file called `event.entity.ts` and describe the entity model using the provided decorators:
 
-- `@CosmosPartitionKey(value: string)`: Represents the `PartitionKey` of the entity (**required**).
+- `@CosmosPartitionKey(value: string | HierarchicalPartitionKey)`: Represents the `PartitionKey` or [`HierarchicalPartitionKey`](https://github.com/Azure/azure-sdk-for-js/tree/main/sdk/cosmosdb/cosmos#crud-on-container-with-hierarchical-partition-key) of the entity (**required**).
 
 - `@CosmosDateTime(value?: string)`: For DateTime values.
+
+**Important:** Using a Hierarchical Partition Key requires a container that uses hierarchical partition keys, [read more](https://learn.microsoft.com/azure/cosmos-db/hierarchical-partition-keys).
 
 For instance, the shape of the following entity:
 
 ```typescript
 import { CosmosDateTime, CosmosPartitionKey } from '@nestjs/azure-database';
+import { PartitionKeyDefinitionVersion, PartitionKeyKind } from '@azure/cosmos';
 
-@CosmosPartitionKey('type')
+@CosmosPartitionKey({
+  paths: ['/name', '/type/label'],
+  version: PartitionKeyDefinitionVersion.V2,
+  kind: PartitionKeyKind.MultiHash,
+})
 export class Event {
+  id?: string;
   name: string;
-  type: string;
+  type: {
+    label: string;
+  };
   @CosmosDateTime() createdAt: Date;
 }
 ```
@@ -117,7 +127,9 @@ Will be automatically converted to:
 ```json
 {
   "name": "NestJS Meetup",
-  "type": "Meetup",
+  "type": {
+    "label": "Meetup"
+  },
   "createdAt": "2019-11-15T17:05:25.427Z"
 }
 ```
@@ -174,8 +186,6 @@ export class EventService {
 
 ##### CREATE
 
-`create(entity: T): Promise<T>`: creates a new entity.
-
 ```typescript
 async create(eventDto: EventDTO): Promise<Event> {
   const { resource } = await this.eventContainer.items.create<Event>(
@@ -187,8 +197,7 @@ async create(eventDto: EventDTO): Promise<Event> {
 
 ##### READ
 
-`Items.query<T>(query: string | SqlQuerySpec, options?: FeedOptions): QueryIterator<T>`: Queries the database using a SQL query.
-`QueryIterator<Event>.fetchAll(): Promise<FeedResponse<Event>>`: Fetches all the results of the query.
+Fetches all the results of the query.
 
 ```typescript
 async getEvents(): Promise<Event[]> {
@@ -203,14 +212,25 @@ async getEvents(): Promise<Event[]> {
 }
 ```
 
+Fetch a single resource.
+
+```typescript
+async getEvent(id: string, partitionKey: string | string[]): Promise<Event> {
+  const { resource } = await this.eventContainer
+        .item(id, type)
+        .read<Event>();
+  return resource;
+}
+```
+
 ##### UPDATE
 
-`Item.replace<`T` & Resource>(body: `T` & Resource, options?: RequestOptions): Promise<ItemResponse<`T` & Resource>>`: Replaces an item in the database.
+Replaces an item in the database.
 
 ```typescript
 async updateEvent(
   id: string,
-  type: string,
+  partitionKey: string | string[],
   eventData: EventDTO,
 ): Promise<Event> {
   let { resource: item } = await this.eventContainer
@@ -232,10 +252,10 @@ async updateEvent(
 
 ##### DELETE
 
-`Item.delete<T>(options?: RequestOptions): Promise<ItemResponse<T>>`: Deletes an item from the database.
+Deletes an item from the database.
 
 ```typescript
-async deleteEvent(id: string, type: string): Promise<Event> {
+async deleteEvent(id: string, partitionKey: string | string[]): Promise<Event> {
   const { resource: deleted } = await this.eventContainer
     .item(id, type)
     .delete<Event>();
@@ -243,6 +263,18 @@ async deleteEvent(id: string, type: string): Promise<Event> {
   return deleted;
 }
 ```
+
+#### Hierarchical Partition Keys
+
+If using hierarchical partition keys, you need to provide the partition key as an array of strings when calling one of the CRUD methods on the `Container`. For example, when reading a single resource:
+
+```javascript
+this.eventContainer
+        .item("1234", ['foo', 'bar'])
+        .read<Event>();
+```
+
+Read more about [Hierarchical Partition Keys](https://learn.microsoft.com/en-us/azure/cosmos-db/hierarchical-partition-keys?tabs=javascript-v4%2Carm-json).
 
 ### For Azure Table Storage support
 
@@ -407,7 +439,6 @@ The `AzureTableStorageRepository` provides a list of public methods for managing
     await this.eventRepository.delete(partitionKey, rowKey);
   }
 ```
-
 
 ## Support
 

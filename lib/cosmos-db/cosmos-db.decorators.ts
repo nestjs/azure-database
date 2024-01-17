@@ -1,9 +1,16 @@
 import { Inject } from '@nestjs/common';
+import { PartitionKeyKind, PartitionKeyDefinitionVersion } from '@azure/cosmos';
 import { getConnectionToken, getModelToken } from './cosmos-db.utils';
 
 export const AZURE_COSMOS_DB_ENTITY = 'cosmos-db:entity';
 
 type AnnotationPropertyType = 'PartitionKey' | 'DateTime' | 'UniqueKey';
+type HierarchicalPartitionKey = {
+  id?: string;
+  paths: string[];
+  version: PartitionKeyDefinitionVersion;
+  kind: PartitionKeyKind;
+}
 
 function validateType(annotationType: AnnotationPropertyType, target: object /* Function */, propertyKey?: string) {
   if (propertyKey) {
@@ -28,7 +35,7 @@ function validateType(annotationType: AnnotationPropertyType, target: object /* 
   }
 }
 
-function annotate(value: string, type: AnnotationPropertyType) {
+function annotate(value: string | HierarchicalPartitionKey, type: AnnotationPropertyType) {
   return (target: object /* Function */, propertyKey?: string | undefined) => {
     // check if the property type matches the annotated type
     validateType(type, target, propertyKey);
@@ -78,10 +85,22 @@ function annotate(value: string, type: AnnotationPropertyType) {
 
       const isPartitionKey = type === 'PartitionKey';
       if (isPartitionKey) {
-        entityDescriptor = {
-          ...entityDescriptor,
-          [type]: value || propertyKey,
-        };
+        if (typeof value === 'string') {
+          entityDescriptor = {
+            ...entityDescriptor,
+            [type]: value || propertyKey,
+          };
+        }
+        else {
+          entityDescriptor = {
+            ...entityDescriptor,
+            [type]: {
+              paths: value.paths,
+              version: value.version,
+              kind: value.kind,
+            },
+          };
+        }
       }
     }
 
@@ -89,7 +108,7 @@ function annotate(value: string, type: AnnotationPropertyType) {
   };
 }
 
-export function CosmosPartitionKey(value: string) {
+export function CosmosPartitionKey(value: string | HierarchicalPartitionKey) {
   return annotate(value, 'PartitionKey');
 }
 
