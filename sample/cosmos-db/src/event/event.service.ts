@@ -35,7 +35,7 @@ export class EventService {
     }
   }
 
-  async getEvent(id: string, type: string): Promise<Event> {
+  async getEvent(id: string, type: string | string[]): Promise<Event> {
     try {
       const { resource } = await this.eventContainer
         .item(id, type)
@@ -49,7 +49,7 @@ export class EventService {
 
   async updateEvent(
     id: string,
-    type: string,
+    type: string | string[],
     eventData: EventDTO,
   ): Promise<Event> {
     try {
@@ -72,7 +72,7 @@ export class EventService {
     }
   }
 
-  async deleteEvent(id: string, type: string): Promise<Event> {
+  async deleteEvent(id: string, type: string | string[]): Promise<Event> {
     try {
       const { resource: deleted } = await this.eventContainer
         .item(id, type)
