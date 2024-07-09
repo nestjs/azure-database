@@ -408,10 +408,10 @@ The `AzureTableStorageRepository` provides a list of public methods for managing
   }
 ```
 
-`findAll(): Promise<T[]>`: finds all entities (NOTE: odata filters are not supported yet).
+`findAll(options: { queryOptions?: TableEntityQueryOptions }): Promise<T[]>`: finds all entities.
 
 ```typescript
-  async findAll(): Promise<Event[]> {
+  async findAll(options: { queryOptions?: TableEntityQueryOptions }): Promise<Event[]> {
     return await this.eventRepository.findAll();
   }
 ```
