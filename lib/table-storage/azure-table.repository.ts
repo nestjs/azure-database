@@ -1,4 +1,4 @@
-import { DeleteTableEntityResponse, TableEntity } from '@azure/data-tables';
+import { DeleteTableEntityResponse, TableEntity, TableEntityQueryOptions } from '@azure/data-tables';
 import { Inject, Injectable, Logger } from '@nestjs/common';
 import { AZURE_TABLE_STORAGE_FEATURE_OPTIONS, AZURE_TABLE_STORAGE_NAME } from './azure-table.constant';
 import { AzureTableStorageFeatureOptions } from './azure-table.interface';
@@ -60,13 +60,12 @@ export class AzureTableStorageRepository<T> {
     }
   }
 
-  async findAll(): Promise<T[]> {
+  async findAll(options: { queryOptions?: TableEntityQueryOptions } = {}): Promise<T[]> {
     logger.debug(`Looking for entities in table: ${this.tableName}`);
 
     try {
       const records = this.tableClientInstance.listEntities({
-        // TODO: odata filters on findAll is not supported yet (see: https://github.com/Azure/azure-sdk-for-js/issues/19494)
-        // queryOptions: { filter: odata`${filter}`, select: [] },
+        queryOptions: options.queryOptions,
       });
 
       const entities = [];
