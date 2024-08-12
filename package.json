@@ -40,7 +40,7 @@
   "devDependencies": {
     "@commitlint/cli": "19.4.0",
     "@commitlint/config-angular": "19.3.0",
-    "@nestjs/testing": "10.3.10",
+    "@nestjs/testing": "10.4.0",
     "@types/jest": "29.5.12",
     "@types/node": "20.9.4",
     "@typescript-eslint/eslint-plugin": "8.0.1",
