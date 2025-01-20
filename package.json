@@ -28,21 +28,21 @@
     "publish:next": "npm publish --access public --tag next"
   },
   "peerDependencies": {
-    "@nestjs/common": "^9.0.0 || ^10.0.0",
-    "@nestjs/core": "^9.0.0 || ^10.0.0"
+    "@nestjs/common": "^11.0.0",
+    "@nestjs/core": "^11.0.0"
   },
   "dependencies": {
     "@azure/cosmos": "^4.0.0",
     "@azure/data-tables": "^13.2.2",
-    "@nestjs/common": "^9.0.0 || ^10.0.0",
-    "@nestjs/core": "^9.0.0 || ^10.0.0"
+    "@nestjs/common": "^11.0.0",
+    "@nestjs/core": "^11.0.0"
   },
   "devDependencies": {
     "@commitlint/cli": "19.6.1",
     "@commitlint/config-angular": "19.6.0",
     "@eslint/eslintrc": "3.2.0",
     "@eslint/js": "9.18.0",
-    "@nestjs/testing": "10.4.15",
+    "@nestjs/testing": "11.0.3",
     "@types/jest": "29.5.14",
     "@types/node": "22.8.2",
     "dotenv": "16.4.7",
