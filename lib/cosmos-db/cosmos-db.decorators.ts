@@ -10,7 +10,7 @@ type HierarchicalPartitionKey = {
   paths: string[];
   version: PartitionKeyDefinitionVersion;
   kind: PartitionKeyKind;
-}
+};
 
 function validateType(annotationType: AnnotationPropertyType, target: object /* Function */, propertyKey?: string) {
   if (propertyKey) {
@@ -36,7 +36,7 @@ function validateType(annotationType: AnnotationPropertyType, target: object /* 
 }
 
 function annotate(value: string | HierarchicalPartitionKey, type: AnnotationPropertyType) {
-  return (target: object /* Function */, propertyKey?: string | undefined) => {
+  return (target: object /* Function */, propertyKey?: string) => {
     // check if the property type matches the annotated type
     validateType(type, target, propertyKey);
 
@@ -90,8 +90,7 @@ function annotate(value: string | HierarchicalPartitionKey, type: AnnotationProp
             ...entityDescriptor,
             [type]: value || propertyKey,
           };
-        }
-        else {
+        } else {
           entityDescriptor = {
             ...entityDescriptor,
             [type]: {

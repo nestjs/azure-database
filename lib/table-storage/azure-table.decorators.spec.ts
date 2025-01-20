@@ -1,17 +1,17 @@
 import {
   AZURE_TABLE_ENTITY,
-  EntityPartitionKey,
-  InjectRepository,
-  EntityRowKey,
-  EntityInt32,
-  EntityInt64,
   EntityBinary,
   EntityBoolean,
-  EntityString,
   EntityDateTime,
+  EntityInt32,
+  EntityInt64,
+  EntityPartitionKey,
+  EntityRowKey,
+  EntityString,
+  InjectRepository,
 } from './azure-table.decorators';
 
-type DecoratorFn = () => (target: object, propertyKey?: string | undefined) => void;
+type DecoratorFn = () => (target: object, propertyKey?: string) => void;
 
 describe('Azure Table Storage Decorators', () => {
   beforeEach(() => {

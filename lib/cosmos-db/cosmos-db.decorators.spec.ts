@@ -20,7 +20,7 @@ describe('Azure CosmosDB Decorators', () => {
 
     it('should add a Hierarchical PartitionKey ', () => {
       @CosmosPartitionKey({
-        paths: ["/name", "/address/zip"],
+        paths: ['/name', '/address/zip'],
         version: PartitionKeyDefinitionVersion.V2,
         kind: PartitionKeyKind.MultiHash,
       })
@@ -29,7 +29,7 @@ describe('Azure CosmosDB Decorators', () => {
       const metadata = Reflect.getMetadata(AZURE_COSMOS_DB_ENTITY, MockClass);
       expect(metadata).toStrictEqual({
         PartitionKey: {
-          paths: ["/name", "/address/zip"],
+          paths: ['/name', '/address/zip'],
           version: PartitionKeyDefinitionVersion.V2,
           kind: PartitionKeyKind.MultiHash,
         },

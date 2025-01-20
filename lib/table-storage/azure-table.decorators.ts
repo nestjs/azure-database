@@ -1,6 +1,6 @@
 import { Inject } from '@nestjs/common';
-import { getRepositoryToken } from './azure-table.providers';
 import { ValueType } from './azure-table.interface';
+import { getRepositoryToken } from './azure-table.providers';
 
 export const AZURE_TABLE_ENTITY = 'azure-table-storage:entity';
 
@@ -53,7 +53,7 @@ function validateType(edmType: AnnotationPropertyType, target: object /* Functio
 
 // NOTE: Class annotation (partitionKey or rowKey) have been deprecated.
 function annotate(value: ValueType | undefined, type: AnnotationPropertyType) {
-  return (target: object /* Function */, propertyKey?: string | undefined) => {
+  return (target: object /* Function */, propertyKey?: string) => {
     // check if the property type matches the annotated type
     validateType(type, target, propertyKey);
 
@@ -69,7 +69,7 @@ function annotate(value: ValueType | undefined, type: AnnotationPropertyType) {
     };
 
     if (typeof value === 'string') {
-      value = value;
+      // Do nothing
     } else if (typeof value === 'function') {
       value = value(new (target as any)());
     } else {

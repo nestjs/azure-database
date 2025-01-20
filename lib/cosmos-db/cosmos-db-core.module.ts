@@ -1,5 +1,5 @@
 import { CosmosClient } from '@azure/cosmos';
-import { DynamicModule, Global, Module, Provider, Type } from '@nestjs/common';
+import { DynamicModule, Global, Module, Provider } from '@nestjs/common';
 import { defer } from 'rxjs';
 import { COSMOS_DB_MODULE_OPTIONS } from './cosmos-db.constants';
 import {
@@ -77,7 +77,7 @@ export class AzureCosmosDbCoreModule {
     if (options.useExisting || options.useFactory) {
       return [this.createAsyncOptionsProvider(options)];
     }
-    const useClass = options.useClass as Type<AzureCosmosDbOptionsFactory>;
+    const useClass = options.useClass;
     return [
       this.createAsyncOptionsProvider(options),
       {
@@ -96,7 +96,7 @@ export class AzureCosmosDbCoreModule {
       };
     }
     // `as Type<AzureCosmosDbOptionsFactory>` is a workaround for microsoft/TypeScript#31603
-    const inject = [(options.useClass || options.useExisting) as Type<AzureCosmosDbOptionsFactory>];
+    const inject = [options.useClass || options.useExisting];
     return {
       provide: COSMOS_DB_MODULE_OPTIONS,
       useFactory: async (optionsFactory: AzureCosmosDbOptionsFactory) =>
