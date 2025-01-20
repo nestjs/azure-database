@@ -28,8 +28,8 @@
     "publish:next": "npm publish --access public --tag next"
   },
   "peerDependencies": {
-    "@nestjs/common": "^11.0.0",
-    "@nestjs/core": "^11.0.0"
+    "@nestjs/common": "^10.0.0 || ^11.0.0",
+    "@nestjs/core": "^10.0.0 || ^11.0.0"
   },
   "dependencies": {
     "@azure/cosmos": "^4.0.0",
