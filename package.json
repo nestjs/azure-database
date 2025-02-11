@@ -42,7 +42,7 @@
     "@commitlint/config-angular": "19.7.1",
     "@eslint/eslintrc": "3.2.0",
     "@eslint/js": "9.20.0",
-    "@nestjs/testing": "11.0.8",
+    "@nestjs/testing": "11.0.9",
     "@types/jest": "29.5.14",
     "@types/node": "22.13.1",
     "dotenv": "16.4.7",
