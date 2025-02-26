@@ -22,6 +22,7 @@ class ConfigModule {}
     AzureTableStorageModule.forRootAsync({
       imports: [ConfigModule],
       useExisting: ConfigService,
+      // useClass: ConfigService,
     }),
   ],
 })

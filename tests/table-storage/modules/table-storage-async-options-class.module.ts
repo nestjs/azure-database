@@ -7,6 +7,7 @@ class ConfigService implements AzureTableStorageOptionsFactory {
       accountName: 'account-name',
       sasKey: 'sas-key',
       connectionString: 'connection-string',
+      allowInsecureConnection: true,
     };
   }
 }
