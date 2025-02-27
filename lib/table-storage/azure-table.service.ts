@@ -25,8 +25,6 @@ export class AzureTableStorageService {
   }
 
   get tableClientInstance() {
-    // this.options = this.moduleRef.get(AZURE_TABLE_STORAGE_MODULE_OPTIONS)
-    console.log('tableClientInstance', this.options);
     if (this.tableClient) {
       return this.tableClient;
     }
