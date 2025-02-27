@@ -1,8 +1,5 @@
 import { randomUUID } from 'crypto';
-import { Logger } from '@nestjs/common';
 import { AZURE_TABLE_ENTITY } from './azure-table.decorators';
-
-const logger = new Logger(`AzureEntityMapper`);
 
 export interface PartitionRowKeyValues {
   partitionKey: string;

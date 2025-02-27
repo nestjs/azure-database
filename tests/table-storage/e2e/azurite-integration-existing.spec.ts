@@ -1,11 +1,8 @@
-import { ChildProcessWithoutNullStreams, spawn } from 'node:child_process';
 import { Test, TestingModule } from '@nestjs/testing';
 import { AzureTableStorageModule, AzureTableStorageOptionsFactory } from '../../../lib';
 import { AzuriteModule } from '../modules/azurite.module';
-import { Event, EventService } from '../services';
-import { Logger, Module } from '@nestjs/common';
-
-const logger = new Logger(`AzureStorageRepository`);
+import { AzuriteTable, Event, EventService } from '../services';
+import { Module } from '@nestjs/common';
 
 let connectionString: string;
 
@@ -32,40 +29,14 @@ class ConfigModule {}
  */
 describe('azurite-integration-existing', () => {
   let moduleRef: TestingModule;
-  let server: ChildProcessWithoutNullStreams;
-  let tableHost: string;
+  let server: AzuriteTable;
   let service: EventService;
 
   beforeAll(async () => {
-    let started = false;
-    server = spawn('npx', ['azurite-table', '--inMemoryPersistence', '--tablePort', '10104']);
+    server = new AzuriteTable(10104);
+    await server.start();
 
-    await new Promise((resolve, reject) => {
-      server.stdout.on('data', (data: Buffer) => {
-        logger.debug(data.toString());
-
-        if (data.toString().includes(`Azurite Table service successfully started on `)) {
-          started = true;
-          const matches = data.toString().match(/Azurite Table service successfully started on (?<host>[\d.:]+)/);
-          if (matches && matches.groups) {
-            tableHost = matches.groups['host'];
-            resolve(undefined);
-          } else {
-            reject('Host cannot be determined');
-          }
-        }
-      });
-
-      server.stderr.on('data', (data: Buffer) => {
-        logger.error(data.toString());
-        if (!started) reject(data.toString());
-      });
-    });
-
-    logger.log('Server listening');
-
-    connectionString = `DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;AccountKey=Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==;TableEndpoint=http://${tableHost}/devstoreaccount1;`;
-    process.env.AZURE_STORAGE_CONNECTION_STRING = connectionString;
+    connectionString = server.getConnectionString();
 
     moduleRef = await Test.createTestingModule({
       imports: [
@@ -80,8 +51,9 @@ describe('azurite-integration-existing', () => {
     service = moduleRef.get(EventService);
   });
 
-  afterAll(() => {
-    server.kill();
+  afterAll(async () => {
+    await moduleRef.close();
+    server.stop();
   });
 
   it('should be defined', () => {
