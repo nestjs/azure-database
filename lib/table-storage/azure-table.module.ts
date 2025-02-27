@@ -1,4 +1,4 @@
-import { DynamicModule, Logger, Module, Provider } from '@nestjs/common';
+import { DynamicModule, Global, Logger, Module, Provider } from '@nestjs/common';
 import {
   AZURE_TABLE_STORAGE_FEATURE_OPTIONS,
   AZURE_TABLE_STORAGE_MODULE_OPTIONS,
@@ -23,6 +23,7 @@ type EntityFn = /* Function */ {
   name: string;
 };
 
+@Global()
 @Module({})
 export class AzureTableStorageModule {
   constructor() {
@@ -40,6 +41,10 @@ export class AzureTableStorageModule {
         {
           provide: AZURE_TABLE_STORAGE_NAME,
           useValue: '',
+        },
+        {
+          provide: AZURE_TABLE_STORAGE_FEATURE_OPTIONS,
+          useValue: {},
         },
       ],
       exports: [...EXPORTS, AZURE_TABLE_STORAGE_MODULE_OPTIONS],
@@ -62,7 +67,7 @@ export class AzureTableStorageModule {
         ...PROVIDERS,
         ...this.createAsyncProviders(options),
       ],
-      exports: [...EXPORTS],
+      exports: [...EXPORTS, AZURE_TABLE_STORAGE_MODULE_OPTIONS],
     };
   }
 
@@ -98,7 +103,7 @@ export class AzureTableStorageModule {
 
   static forFeature(
     entity: EntityFn,
-    options: AzureTableStorageFeatureOptions = {
+    featureOptions: AzureTableStorageFeatureOptions = {
       // use either the given table name or the entity name
       table: entity.name,
       createTableIfNotExists: false,
@@ -113,11 +118,11 @@ export class AzureTableStorageModule {
         ...repositoryProviders,
         {
           provide: AZURE_TABLE_STORAGE_NAME,
-          useValue: options.table || entity.name,
+          useValue: featureOptions.table || entity.name,
         },
         {
           provide: AZURE_TABLE_STORAGE_FEATURE_OPTIONS,
-          useValue: options,
+          useValue: featureOptions,
         },
       ],
       exports: [...EXPORTS, ...repositoryProviders],

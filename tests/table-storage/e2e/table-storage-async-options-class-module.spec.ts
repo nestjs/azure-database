@@ -22,6 +22,7 @@ describe('Table Storage (async class)', () => {
 
     expect(options).toEqual({
       accountName: 'account-name',
+      allowInsecureConnection: true,
       sasKey: 'sas-key',
       connectionString: 'connection-string',
     });

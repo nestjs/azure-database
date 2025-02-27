@@ -1,8 +1,8 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { AZURE_TABLE_STORAGE_MODULE_OPTIONS } from '../../../lib';
-import { TableStorageAsyncModule } from '../modules/table-storage-async-options.module';
+import { TableStorageModule } from '../modules/table-storage-options.module';
 
-describe('Table Storage (async class)', () => {
+describe('Table Storage (sync class)', () => {
   let moduleRef: TestingModule;
 
   const originalEnv = process.env;
@@ -13,7 +13,7 @@ describe('Table Storage (async class)', () => {
   beforeEach(async () => {
     process.env.AZURE_STORAGE_CONNECTION_STRING = 'abc';
     moduleRef = await Test.createTestingModule({
-      imports: [TableStorageAsyncModule],
+      imports: [TableStorageModule],
     }).compile();
   });
 
@@ -22,7 +22,7 @@ describe('Table Storage (async class)', () => {
 
     expect(options).toEqual({
       accountName: 'account-name',
-      allowInsecureConnection: true,
+      allowInsecureConnection: false,
       sasKey: 'sas-key',
       connectionString: 'connection-string',
     });

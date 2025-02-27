@@ -8,6 +8,7 @@ import { AzureTableStorageModule } from '../../../lib';
         accountName: 'account-name',
         sasKey: 'sas-key',
         connectionString: 'connection-string',
+        allowInsecureConnection: true,
       }),
     }),
   ],

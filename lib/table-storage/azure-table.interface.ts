@@ -1,7 +1,8 @@
 import { ModuleMetadata, Type } from '@nestjs/common';
 import { AzureTableStorageRepository } from './azure-table.repository';
+import { TableServiceClientOptions } from '@azure/data-tables';
 
-export interface AzureTableStorageOptions {
+export interface AzureTableStorageOptions extends TableServiceClientOptions {
   accountName?: string;
   sasKey?: string;
   connectionString?: string;
