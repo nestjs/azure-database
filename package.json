@@ -44,7 +44,7 @@
     "@eslint/js": "9.27.0",
     "@nestjs/testing": "11.1.2",
     "@types/jest": "29.5.14",
-    "@types/node": "22.13.8",
+    "@types/node": "22.15.29",
     "azurite": "3.34.0",
     "dotenv": "16.5.0",
     "eslint": "9.27.0",
