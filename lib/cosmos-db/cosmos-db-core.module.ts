@@ -47,7 +47,7 @@ export class AzureCosmosDbCoreModule {
     const connectionProvider = {
       provide: cosmosConnectionName,
       useFactory: async (cosmosModuleOptions: AzureCosmosDbOptions): Promise<any> => {
-        const { dbName, retryAttempts, retryDelay, connectionName, ...cosmosOptions } = cosmosModuleOptions;
+        const { dbName, retryAttempts, retryDelay, ...cosmosOptions } = cosmosModuleOptions;
 
         return await defer(async () => {
           cosmosOptions.userAgentSuffix = await getuserAgentSuffix();
