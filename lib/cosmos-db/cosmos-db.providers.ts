@@ -52,9 +52,17 @@ export function createAzureCosmosDbProviders(
       }
 
       if (partitionKey != null) {
-        containerOptions.partitionKey = {
-          paths: [`/${partitionKey}`],
-        };
+        if (typeof partitionKey === 'string') {
+          containerOptions.partitionKey = {
+            paths: [`/${partitionKey}`],
+          };
+        }
+        else if (typeof partitionKey === 'object') {
+          containerOptions.partitionKey = partitionKey;
+        } else {
+          throw new Error(`Invalid PartitionKey definition for model ${model.dto.name}`);
+        }
+
       }
       const coResponse = await database.containers.createIfNotExists(containerOptions);
 
