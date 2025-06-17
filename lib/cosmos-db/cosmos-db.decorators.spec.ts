@@ -2,10 +2,7 @@ import { AZURE_COSMOS_DB_ENTITY, CosmosPartitionKey } from './cosmos-db.decorato
 import { PartitionKeyDefinitionVersion, PartitionKeyKind } from '@azure/cosmos';
 
 describe('Azure CosmosDB Decorators', () => {
-  beforeEach(() => {
-    // tslint:disable-next-line: no-empty
-    function MockEntity() {}
-  });
+  beforeEach(() => {});
 
   describe('@CosmosPartitionKey()', () => {
     it('should add a PartitionKey ', () => {
