@@ -6,9 +6,16 @@ import { readFile } from 'fs/promises';
 import { join } from 'path';
 
 export async function getuserAgentSuffix(): Promise<string> {
-  const data = await readFile(join(__dirname, '..', '..', 'package.json'), 'utf8');
-  const json = await JSON.parse(data);
-  return `node.js/${process.version} (${process.platform}; ${process.arch}) ${json.name}/${json.version}`;
+  try {
+    const data = await readFile(join(__dirname, '..', '..', 'package.json'), 'utf8');
+    const json = await JSON.parse(data);
+    if (json.name && json.version) {
+      return `node.js/${process.version} (${process.platform}; ${process.arch}) ${json.name}/${json.version}`;
+    }
+    throw new Error('Missing required package.json properties');
+  } catch {
+    return `node.js/${process.version} (${process.platform}; ${process.arch})`;
+  }
 }
 
 export function getModelToken(model: string) {
