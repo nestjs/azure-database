@@ -34,7 +34,7 @@ describe('cosmos-db.utils', () => {
       const result = await getuserAgentSuffix();
 
       expect(mockReadFile).toHaveBeenCalledWith(join(__dirname, '..', '..', 'package.json'), 'utf8');
-      expect(result).toBe(`node.js/${process.version} (${process.platform}; ${process.arch})`);
+      expect(result).toBe(`node.js/${process.version} (${process.platform}; ${process.arch}) @nestjs/azure-database/0.0.0`);
     });
 
     it('should return fallback user agent when package.json is invalid JSON', async () => {
