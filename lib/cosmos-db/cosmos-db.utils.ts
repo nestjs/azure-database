@@ -14,7 +14,7 @@ export async function getuserAgentSuffix(): Promise<string> {
     }
     throw new Error('Missing required package.json properties');
   } catch {
-    return `node.js/${process.version} (${process.platform}; ${process.arch})`;
+    return `node.js/${process.version} (${process.platform}; ${process.arch}) @nestjs/azure-database/0.0.0`;
   }
 }
 
