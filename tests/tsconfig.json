@@ -1,0 +1,23 @@
+{
+  "extends": "../tsconfig.json",
+  "compilerOptions": {
+    "types": ["jest", "node"],
+    "noEmit": true,
+    "isolatedModules": false,
+    "skipLibCheck": true,
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+    "moduleResolution": "node",
+    "resolveJsonModule": true
+  },
+  "include": [
+    "**/*.spec.ts",
+    "**/*.test.ts",
+    "../lib/**/*.ts",
+    "../node_modules/@types/jest/index.d.ts",
+    "../node_modules/@types/node/index.d.ts"
+  ],
+  "exclude": [
+    "node_modules"
+  ]
+}
