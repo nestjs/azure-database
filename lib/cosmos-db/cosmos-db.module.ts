@@ -2,6 +2,7 @@ import { DynamicModule, Module } from '@nestjs/common';
 import { AzureCosmosDbCoreModule } from './cosmos-db-core.module';
 import { AzureCosmosDbModuleAsyncOptions, AzureCosmosDbOptions } from './cosmos-db.interface';
 import { createAzureCosmosDbProviders } from './cosmos-db.providers';
+import { CosmosSearchService } from './cosmos-search.service';
 
 @Module({})
 export class AzureCosmosDbModule {
@@ -9,6 +10,8 @@ export class AzureCosmosDbModule {
     return {
       module: AzureCosmosDbModule,
       imports: [AzureCosmosDbCoreModule.forRoot(options)],
+      providers: [CosmosSearchService],
+      exports: [CosmosSearchService],
     };
   }
 
@@ -16,6 +19,8 @@ export class AzureCosmosDbModule {
     return {
       module: AzureCosmosDbModule,
       imports: [AzureCosmosDbCoreModule.forRootAsync(options)],
+      providers: [CosmosSearchService],
+      exports: [CosmosSearchService],
     };
   }
 
@@ -23,8 +28,8 @@ export class AzureCosmosDbModule {
     const providers = createAzureCosmosDbProviders(connectionName, models);
     return {
       module: AzureCosmosDbModule,
-      providers,
-      exports: providers,
+      providers: [...providers, CosmosSearchService],
+      exports: [...providers, CosmosSearchService],
     };
   }
 }
