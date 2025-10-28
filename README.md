@@ -30,6 +30,52 @@ Azure Database ([Table Storage](http://bit.ly/nest_azure-storage-table), [Cosmos
 
 You are reading the documentation for version 3. If you are looking for version 2 documentation, [click here](https://github.com/nestjs/azure-database/tree/legacy-v2). Please also note that version 2 is no longer maintained and will not receive any updates!
 
+## Quick Start for Windows Users
+
+If you're contributing to this project on Windows, you may encounter PowerShell execution policy issues. Here's how to fix them:
+
+### Quick Fix (Recommended)
+
+Run this command in PowerShell as Administrator:
+
+```powershell
+Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser
+```
+
+### Alternative Solutions
+
+If you encounter issues:
+- Use Command Prompt instead of PowerShell
+- Use Git Bash (if installed)
+- Use PowerShell Core (pwsh) instead of Windows PowerShell
+
+## 🚀 Try the Search Features Sample
+
+Want to see vector search, full-text search, and hybrid search in action? Check out our comprehensive sample application:
+
+```bash
+# Navigate to the enhanced cosmos-db sample with search features
+cd sample/cosmos-db
+
+# Install dependencies
+npm install
+
+# Start the sample application
+npm run start:dev
+```
+
+Visit http://localhost:3000/events to explore the Event API with search capabilities.
+
+### 🧪 Test Against Cosmos DB Emulator
+
+For local testing of all Cosmos DB features including the new search capabilities, see our comprehensive emulator testing guide:
+- [COSMOSDB_EMULATOR_TESTING.md](./COSMOSDB_EMULATOR_TESTING.md) - Complete guide for testing all Cosmos DB features
+
+```bash
+# Run emulator integration tests
+npm test tests/cosmos-db/event-search-emulator.integration.spec.ts
+```
+
 ## Before Installation
 
 For Cosmos DB (NoSQL ONLY)
@@ -276,6 +322,313 @@ this.eventContainer
 
 Read more about [Hierarchical Partition Keys](https://learn.microsoft.com/en-us/azure/cosmos-db/hierarchical-partition-keys?tabs=javascript-v4%2Carm-json).
 
+## Advanced Search Capabilities
+
+The NestJS Azure Database integration supports advanced search capabilities for Cosmos DB, including **Vector Search**, **Full-Text Search**, and **Hybrid Search** using the latest Azure Cosmos DB features.
+
+### Prerequisites
+
+To use search features, your Cosmos DB container must be configured with appropriate indexing policies:
+
+- **Vector Search**: Requires vector embedding policies and vector indexes
+- **Full-Text Search**: Requires full-text indexing policies
+- **Hybrid Search**: Requires both vector and full-text indexing policies
+
+### Search Service Setup
+
+The `CosmosSearchService` is automatically provided when you import the `AzureCosmosDbModule`:
+
+```typescript
+import { Injectable } from '@nestjs/common';
+import { InjectModel } from '@nestjs/azure-database';
+import { Container } from '@azure/cosmos';
+import { CosmosSearchService } from '@nestjs/azure-database';
+
+@Injectable()
+export class ArticleService {
+  constructor(
+    @InjectModel(Article)
+    private readonly articleContainer: Container,
+    private readonly searchService: CosmosSearchService,
+  ) {}
+}
+```
+
+### Entity Configuration with Search Decorators
+
+Use the new search decorators to configure your entities for advanced search:
+
+```typescript
+import { 
+  CosmosPartitionKey, 
+  VectorEmbedding, 
+  FullTextSearchable 
+} from '@nestjs/azure-database';
+
+@CosmosPartitionKey('id')
+export class Article {
+  id?: string;
+
+  @FullTextSearchable({
+    searchable: true,
+    highlightable: true,
+    weight: 2.0,
+  })
+  title: string;
+
+  @FullTextSearchable({
+    searchable: true,
+    highlightable: true,
+    weight: 1.0,
+  })
+  content: string;
+
+  @VectorEmbedding({
+    dimensions: 1536,
+    distanceFunction: 'cosine',
+    indexType: 'flat',
+  })
+  embedding: number[];
+
+  author: string;
+  publishedAt: Date;
+}
+```
+
+### Vector Search
+
+Find documents with similar semantic meaning using vector embeddings:
+
+```typescript
+// Find articles similar to a query embedding
+const similarArticles = await this.searchService.vectorSearch<Article>(
+  this.articleContainer,
+  {
+    vectorPath: '/embedding',
+    vector: [0.1, 0.2, 0.3, /* ... */], // Query embedding
+    limit: 10,
+    distanceFunction: 'cosine',
+    similarityThreshold: 0.8,
+  }
+);
+
+// Results include similarity scores
+console.log(similarArticles[0].similarityScore); // 0.95
+console.log(similarArticles[0].document.title);  // "Machine Learning Basics"
+```
+
+**Supported distance functions:**
+- `cosine` - Cosine similarity (recommended for most use cases)
+- `dotproduct` - Dot product similarity
+- `euclidean` - Euclidean distance
+
+### Full-Text Search
+
+Perform advanced keyword and text matching with highlighting:
+
+```typescript
+// Search articles by text with highlighting
+const articles = await this.searchService.fullTextSearch<Article>(
+  this.articleContainer,
+  {
+    searchText: 'machine learning artificial intelligence',
+    searchFields: ['title', 'content'],
+    searchMode: 'any', // 'any' or 'all'
+    fuzzySearch: true,
+    highlightFields: ['title', 'content'],
+  }
+);
+
+// Results include text relevance and highlights
+console.log(articles[0].textScore);        // 0.89
+console.log(articles[0].matchedTerms);     // ['machine', 'learning']
+console.log(articles[0].highlights.title); // ['<em>Machine Learning</em> Tutorial']
+```
+
+**Search features:**
+- **Fuzzy search**: Handles typos and similar terms
+- **Field weighting**: Prioritize matches in certain fields
+- **Highlighting**: Mark matched terms in results
+- **Search modes**: Match any term (`any`) or all terms (`all`)
+
+### Hybrid Search
+
+Combine semantic similarity and keyword relevance for optimal results:
+
+```typescript
+// Hybrid search combining vector and text search
+const results = await this.searchService.hybridSearch<Article>(
+  this.articleContainer,
+  {
+    vectorSearch: {
+      vectorPath: '/embedding',
+      vector: queryEmbedding,
+      limit: 20,
+      distanceFunction: 'cosine',
+    },
+    fullTextSearch: {
+      searchText: 'machine learning tutorial',
+      searchFields: ['title', 'content'],
+      searchMode: 'any',
+      highlightFields: ['title'],
+    },
+    vectorWeight: 0.6,    // 60% semantic relevance
+    textWeight: 0.4,      // 40% keyword relevance
+    rankingFunction: 'rrf', // 'rrf' or 'weighted'
+  }
+);
+
+// Results combine both similarity and text relevance
+console.log(results[0].combinedScore); // 0.92
+console.log(results[0].vectorScore);   // 0.88
+console.log(results[0].textScore);     // 0.95
+console.log(results[0].rankingDetails.fusionScore); // 0.92
+```
+
+**Ranking functions:**
+- `rrf` - Reciprocal Rank Fusion (recommended)
+- `weighted` - Linear weighted combination
+- `linear` - Simple linear combination
+
+### Advanced Search Examples
+
+**Find similar articles by category:**
+
+```typescript
+async findSimilarByCategory(category: string, embedding?: number[]) {
+  if (embedding) {
+    // Use hybrid search with category embedding
+    return this.searchService.hybridSearch(this.articleContainer, {
+      vectorSearch: {
+        vectorPath: '/embedding',
+        vector: embedding,
+        limit: 15,
+      },
+      fullTextSearch: {
+        searchText: category,
+        searchFields: ['category', 'title'],
+      },
+      vectorWeight: 0.3,
+      textWeight: 0.7,
+    });
+  } else {
+    // Use text search only
+    return this.searchService.fullTextSearch(this.articleContainer, {
+      searchText: category,
+      searchFields: ['category'],
+      searchMode: 'all',
+    });
+  }
+}
+```
+
+**Content recommendations based on user history:**
+
+```typescript
+async getRecommendations(userReadArticles: string[], userEmbedding: number[]) {
+  // Find articles similar to user's reading pattern
+  const recommendations = await this.searchService.vectorSearch(
+    this.articleContainer,
+    {
+      vectorPath: '/embedding',
+      vector: userEmbedding, // Calculated from reading history
+      limit: 10,
+      distanceFunction: 'cosine',
+    }
+  );
+
+  // Filter out already read articles
+  return recommendations.filter(
+    result => !userReadArticles.includes(result.document.id!)
+  );
+}
+```
+
+**Multi-modal search with different vector types:**
+
+```typescript
+async searchWithMultipleVectors(
+  titleEmbedding: number[],
+  contentEmbedding: number[],
+  searchText: string
+) {
+  // Search by title embedding
+  const titleResults = await this.searchService.vectorSearch(
+    this.articleContainer,
+    {
+      vectorPath: '/titleEmbedding',
+      vector: titleEmbedding,
+      limit: 20,
+      distanceFunction: 'dotproduct',
+    }
+  );
+
+  // Search by content embedding
+  const contentResults = await this.searchService.vectorSearch(
+    this.articleContainer,
+    {
+      vectorPath: '/contentEmbedding',
+      vector: contentEmbedding,
+      limit: 20,
+      distanceFunction: 'cosine',
+    }
+  );
+
+  // Combine with text search for comprehensive results
+  const hybridResults = await this.searchService.hybridSearch(
+    this.articleContainer,
+    {
+      vectorSearch: {
+        vectorPath: '/embedding',
+        vector: contentEmbedding,
+        limit: 15,
+      },
+      fullTextSearch: {
+        searchText,
+        searchFields: ['title', 'content'],
+      },
+      vectorWeight: 0.5,
+      textWeight: 0.5,
+    }
+  );
+
+  // Merge and deduplicate results based on your business logic
+  return this.mergeSearchResults([titleResults, contentResults, hybridResults]);
+}
+```
+
+### Performance Tips
+
+1. **Vector Index Configuration**: Use appropriate vector index types:
+   - `flat`: Best accuracy, higher latency
+   - `quantizedFlat`: Good balance of accuracy and performance
+   - `diskANN`: Best performance, slightly lower accuracy
+
+2. **Search Optimization**:
+   - Use `maxItemCount` in feed options to limit result batching
+   - Set appropriate `vectorSearchBufferSize` for large result sets
+   - Consider using `allowUnboundedVectorQueries` for exploratory searches
+
+3. **Hybrid Search Tuning**:
+   - Adjust vector/text weights based on your use case
+   - Use RRF for better ranking quality
+   - Pre-filter candidates using metadata before expensive vector operations
+
+### Error Handling
+
+```typescript
+try {
+  const results = await this.searchService.vectorSearch(container, options);
+  return results;
+} catch (error) {
+  if (error.message.includes('Vector search failed')) {
+    // Handle vector search specific errors
+    this.logger.error('Vector search error:', error);
+  }
+  throw error;
+}
+```
+
 ### For Azure Table Storage support
 
 1. Create or update your existing `.env` file with the following content:
@@ -439,6 +792,90 @@ The `AzureTableStorageRepository` provides a list of public methods for managing
     await this.eventRepository.delete(partitionKey, rowKey);
   }
 ```
+
+## Testing and Development
+
+### Running Tests
+
+This project includes comprehensive test suites for both Cosmos DB and Table Storage features:
+
+```bash
+# Run unit tests
+npm test
+
+# Run integration tests (requires Cosmos DB/Storage emulator)
+npm run test:integration
+
+# Run end-to-end tests
+npm run test:e2e
+
+# Generate test coverage report
+npm run test:cov
+```
+
+### Integration Tests
+
+Integration tests validate the search functionality against a real Cosmos DB instance. To run them:
+
+1. **Start Cosmos DB Emulator** or configure connection to live instance
+2. **Seed sample data** (if using the search sample):
+   ```bash
+   cd samples/cosmos-db-search
+   npm run seed
+   ```
+3. **Run integration tests**:
+   ```bash
+   npm run test:integration
+   ```
+
+The integration tests cover:
+- Vector search with different distance functions
+- Full-text search with highlighting and fuzzy matching
+- Hybrid search with various ranking algorithms
+- Error handling and edge cases
+- Performance benchmarks
+
+### Sample Applications
+
+The `samples/` directory contains complete working examples:
+
+- **`samples/cosmos-db-search/`**: Advanced search features demo with REST API
+- **`sample/cosmos-db/`**: Basic Cosmos DB CRUD operations
+- **`sample/table-storage/`**: Azure Table Storage operations
+
+Each sample includes its own README with specific setup instructions.
+
+### Development Workflow
+
+1. **Clone and setup**:
+   ```bash
+   git clone <repository-url>
+   cd azure-database
+   
+   # Windows users: set PowerShell execution policy first
+   Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser
+   
+   npm install
+   ```
+
+2. **Run tests** to ensure everything works:
+   ```bash
+   npm test
+   ```
+
+3. **Try the search sample**:
+   ```bash
+   cd samples/cosmos-db-search
+   npm install
+   npm run seed
+   npm run start:dev
+   ```
+
+4. **Make changes** and validate with tests:
+   ```bash
+   npm run test:integration
+   npm run test:cov
+   ```
 
 ## Support
 

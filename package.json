@@ -21,7 +21,7 @@
     "format": "prettier --write \"{lib,tests}/**/*.ts\"",
     "lint": "eslint \"{lib,tests}/**/*.ts\" --fix",
     "build:lib": "tsc -p tsconfig.json",
-    "prepare": "npm run build",
+    "prepare": "npm run build:lib",
     "prepublish:npm": "npm run build",
     "publish:npm": "npm publish --access public",
     "prepublish:next": "npm run build",
@@ -32,7 +32,7 @@
     "@nestjs/core": "^10.0.0 || ^11.0.0"
   },
   "dependencies": {
-    "@azure/cosmos": "^4.0.0",
+    "@azure/cosmos": "^4.5.1",
     "@azure/data-tables": "^13.2.2",
     "@nestjs/common": "^11.0.0",
     "@nestjs/core": "^11.0.0"
