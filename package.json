@@ -42,7 +42,7 @@
     "@commitlint/config-angular": "20.4.1",
     "@eslint/eslintrc": "3.3.3",
     "@eslint/js": "9.39.2",
-    "@nestjs/testing": "11.1.12",
+    "@nestjs/testing": "11.1.13",
     "@types/jest": "29.5.14",
     "@types/node": "24.9.1",
     "azurite": "3.35.0",
