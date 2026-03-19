@@ -1,9 +1,20 @@
-import { ContainerDefinition, Database, DataType, IndexKind } from '@azure/cosmos';
+import { 
+  ContainerDefinition, 
+  Database, 
+  DataType, 
+  IndexKind,
+  PartitionKeyKind,              // Required for partition key configuration
+  PartitionKeyDefinitionVersion  // Required for partition key versioning
+} from '@azure/cosmos';
 import { AZURE_COSMOS_DB_ENTITY } from './cosmos-db.decorators';
 import { getConnectionToken, getModelToken, pluralize } from './cosmos-db.utils';
 
 export interface PartitionKeyValues {
-  PartitionKey: string;
+  PartitionKey: string | {      // Support for hierarchical partition keys
+    paths: string[];
+    version: PartitionKeyDefinitionVersion;
+    kind: PartitionKeyKind;
+  };
 }
 
 export function createAzureCosmosDbProviders(
@@ -52,9 +63,22 @@ export function createAzureCosmosDbProviders(
       }
 
       if (partitionKey != null) {
-        containerOptions.partitionKey = {
-          paths: [`/${partitionKey}`],
-        };
+        // Check if partition key is hierarchical (object) or simple (string)
+        if (typeof partitionKey === 'object' && 'paths' in partitionKey) {
+          // Hierarchical partition key
+          containerOptions.partitionKey = {
+            paths: partitionKey.paths,
+            version: partitionKey.version,
+            kind: partitionKey.kind,
+          };
+        } else {
+          // Simple partition key - add required kind and version
+          containerOptions.partitionKey = {
+            paths: [`/${partitionKey}`],
+            kind: PartitionKeyKind.Hash,              // Required by Azure Cosmos DB SDK
+            version: PartitionKeyDefinitionVersion.V1, // Required by Azure Cosmos DB SDK
+          };
+        }
       }
       const coResponse = await database.containers.createIfNotExists(containerOptions);
 
