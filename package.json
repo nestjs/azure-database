@@ -45,7 +45,7 @@
     "@nestjs/testing": "11.1.28",
     "@types/jest": "29.5.14",
     "@types/node": "24.9.1",
-    "azurite": "3.35.0",
+    "azurite": "3.36.0",
     "dotenv": "16.6.1",
     "eslint": "9.39.5",
     "eslint-config-prettier": "10.1.8",
