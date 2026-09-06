@@ -32,15 +32,20 @@ You are reading the documentation for version 3. If you are looking for version 
 
 ## Before Installation
 
+> Azure portal interfaces may change; always refer to the latest Microsoft documentation for navigation.
+
 For Cosmos DB (NoSQL ONLY)
 
 1. Create a Cosmos DB account and resource ([read more](https://learn.microsoft.com/azure/cosmos-db/nosql/quickstart-portal))
-2. Note down the "URI", Database name and the "Primary Key" (or "Secondary Key") - You will need them later
+2. Retrieve the URI (Endpoint), Primary Key, and Database Name from your Cosmos DB account in the Azure portal:
+   - Locate your Cosmos DB account's connection details (often under a section like "Keys" or "Connection Strings").
+   - You can extract these from the primary connection string, which follows the format: `AccountEndpoint=<YOUR_ENDPOINT>;AccountKey=<YOUR_KEY>;`
+   - You will use the `AccountEndpoint` value as `AZURE_COSMOS_DB_ENDPOINT` and the `AccountKey` value as `AZURE_COSMOS_DB_KEY` in your `.env` file later.
 
 For Table Storage
 
 1. Create a Storage account and resource ([read more](https://learn.microsoft.com/azure/storage/tables/table-storage-quickstart-portal))
-2. Note down the "Connection string" - You will need it later
+2. Retrieve the connection string from your Storage account in the Azure portal (often under "Access keys" or "Connection strings"). For detailed steps, see [Manage storage account keys](https://learn.microsoft.com/en-us/azure/storage/common/storage-account-keys-manage?tabs=azure-portal#get-connection-string). You will need it later.
 
 ## Installation
 
