@@ -61,7 +61,7 @@
     "supertest": "7.3.1",
     "ts-jest": "29.4.15",
     "typescript": "5.9.3",
-    "typescript-eslint": "8.70.0"
+    "typescript-eslint": "8.72.1"
   },
   "lint-staged": {
     "*.ts": [
